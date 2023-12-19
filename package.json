@@ -1,6 +1,6 @@
 {
   "name": "library-workspace",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -8,7 +8,8 @@
     "build-library": "ng build material-file-input",
     "pack-lib": "cd dist/material-file-input && npm pack",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "publish": "npm run build-library && npm run pack-lib && npm publish dist/material-file-input/ngx-custom-material-file-input-1.0.1.tgz --access public"
   },
   "private": true,
   "dependencies": {
