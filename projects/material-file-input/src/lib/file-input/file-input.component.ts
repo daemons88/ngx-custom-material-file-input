@@ -22,11 +22,11 @@ export class FileInputComponent extends FileInputMixinBase implements MatFormFie
 
   @Input() autofilled = false;
 
-  private _placeholder: string = '';
+  private _placeholder: string;
   private _required = false;
   private _multiple = false;
 
-  @Input() valuePlaceholder: string = '';
+  @Input() valuePlaceholder: string;
   @Input() accept: string | null = null;
   @Input() override errorStateMatcher: ErrorStateMatcher;
 

@@ -1,6 +1,6 @@
 {
   "name": "library-workspace",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -9,29 +9,31 @@
     "pack-lib": "cd dist/material-file-input && npm pack",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "publish": "npm run build-library && npm run pack-lib && npm publish dist/material-file-input/ngx-custom-material-file-input-1.0.1.tgz --access public"
+    "install-local": "npm run build-library && npm run pack-lib && npm install dist/material-file-input/ngx-custom-material-file-input-2.0.0.tgz",
+    "publish": "npm run build-library && npm run pack-lib && npm publish dist/material-file-input/ngx-custom-material-file-input-2.0.0.tgz --access public"
   },
   "private": true,
   "dependencies": {
-    "@angular/animations": "^14.2.12",
-    "@angular/cdk": "^14.2.7",
-    "@angular/common": "^14.2.12",
-    "@angular/compiler": "^14.2.12",
-    "@angular/core": "^14.2.12",
-    "@angular/forms": "^14.2.12",
-    "@angular/material": "^14.2.7",
-    "@angular/platform-browser": "^14.2.12",
-    "@angular/platform-browser-dynamic": "^14.2.12",
-    "@angular/router": "^14.2.12",
-    "ngx-custom-material-file-input": "file:dist/material-file-input/ngx-custom-material-file-input-1.0.0.tgz",
+    "@angular/animations": "^15.2.10",
+    "@angular/cdk": "^15.2.9",
+    "@angular/common": "^15.2.10",
+    "@angular/compiler": "^15.2.10",
+    "@angular/core": "^15.2.10",
+    "@angular/forms": "^15.2.10",
+    "@angular/material": "^15.2.9",
+    "@angular/platform-browser": "^15.2.10",
+    "@angular/platform-browser-dynamic": "^15.2.10",
+    "@angular/router": "^15.2.10",
+    "ngx-custom-material-file-input": "file:dist/material-file-input/ngx-custom-material-file-input-2.0.0.tgz",
     "rxjs": "~7.5.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.11.4"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^14.2.13",
-    "@angular/cli": "~14.2.10",
-    "@angular/compiler-cli": "^14.2.0",
+    "@angular-devkit/build-angular": "^15.2.9",
+    "@angular/cli": "~15.2.9",
+    "@angular/compiler-cli": "^15.2.10",
+    "@types/body-parser": "^1.19.5",
     "@types/jasmine": "~4.0.0",
     "jasmine-core": "~4.3.0",
     "karma": "~6.4.0",
@@ -39,8 +41,8 @@
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.0.0",
-    "ng-packagr": "^14.2.0",
-    "typescript": "~4.7.2"
+    "ng-packagr": "^15.2.2",
+    "typescript": "~4.9.5"
   },
   "engines": {
     "node": ">=16.13.0"
