@@ -6,7 +6,7 @@
 
 # ngx-custom-material-file-input
 
-This project is a copy of [ngx-material-file-input](https://github.com/merlosy/ngx-material-file-input), this was made from angular 14 as a new project, only what was necessary was added and is already updated to angular 15.
+This project is a copy of [ngx-material-file-input](https://github.com/merlosy/ngx-material-file-input), this was made from angular 14 as a new project, only what was necessary was added and is already updated to angular 15 and 16.
 
 This text is a copy from the original (changing only the necessary package names):
 
