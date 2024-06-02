@@ -30,6 +30,7 @@
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^17.0.8",
+    "@angular-eslint/schematics": "17.5.2",
     "@angular/cli": "~17.0.8",
     "@angular/compiler-cli": "^17.0.8",
     "@types/body-parser": "^1.19.5",
