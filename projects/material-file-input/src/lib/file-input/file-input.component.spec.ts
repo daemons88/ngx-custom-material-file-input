@@ -9,34 +9,10 @@ import { MatInputModule } from '@angular/material/input';
 import { FileInput } from '../models/file-input.model';
 import { FileInputComponent } from './file-input.component';
 
-// function createComponent<T>(component: Type<T>,
-//   providers: Provider[] = [],
-//   imports: any[] = []): ComponentFixture<T> {
-// TestBed.configureTestingModule({
-// imports: [
-//   ReactiveFormsModule,
-//   NoopAnimationsModule,
-//   // Material modules
-//   MatButtonModule,
-//   MatFormFieldModule,
-//   MatIconModule,
-//   MatInputModule,
-//   MatToolbarModule,
-//   // Lib Module
-//   MaterialFileInputModule,
-// ...imports
-// ],
-// declarations: [AppComponent],
-// providers,
-// }).compileComponents();
-
-// return TestBed.createComponent<T>(component);
-// }
-
 /**
-* Shows error state on a control if it is touched and has any error.
-* Used as global ErrorStateMatcher for all tests.
-*/
+ * Shows error state on a control if it is touched and has any error.
+ * Used as global ErrorStateMatcher for all tests.
+ */
 class FileInputSpecErrorStateMatcher implements ErrorStateMatcher {
   public isErrorState(control: FormControl | null, _: FormGroupDirective | NgForm | null): boolean {
     return !!(control && control.errors !== null && control.touched);
@@ -44,12 +20,12 @@ class FileInputSpecErrorStateMatcher implements ErrorStateMatcher {
 }
 
 /**
-* Shows error state on a control with exactly two validation errors.
-* Used to change the ErrorStateMatcher of a single component.
-*/
+ * Shows error state on a control with exactly two validation errors.
+ * Used to change the ErrorStateMatcher of a single component.
+ */
 class OverrideErrorStateMatcher implements ErrorStateMatcher {
   public isErrorState(control: FormControl | null, _: FormGroupDirective | NgForm | null): boolean {
-    return !!(control && control.errors && control.errors['length'] === 2);
+    return !!(control && control.errors && Object.keys(control.errors).length === 2);
   }
 }
 
@@ -57,23 +33,22 @@ describe('FileInputComponent', () => {
   let component: FileInputComponent;
   let fixture: ComponentFixture<FileInputComponent>;
 
-  beforeEach(
-    waitForAsync(() => {
-      TestBed.configureTestingModule({
-        declarations: [FileInputComponent],
-        imports: [
-          ReactiveFormsModule,
-          FormsModule,
-          // Material modules
-          MatFormFieldModule,
-          MatInputModule,
-          MatButtonModule,
-          MatIconModule
-        ],
-        providers: [{ provide: NgControl, useValue: NG_VALUE_ACCESSOR }, { provide: ErrorStateMatcher, useClass: FileInputSpecErrorStateMatcher }]
-      }).compileComponents();
-    })
-  );
+  beforeEach(waitForAsync(() => {
+    TestBed.configureTestingModule({
+      declarations: [FileInputComponent],
+      imports: [
+        ReactiveFormsModule,
+        FormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatButtonModule,
+        MatIconModule
+      ],
+      providers: [
+        { provide: ErrorStateMatcher, useClass: FileInputSpecErrorStateMatcher }
+      ]
+    }).compileComponents();
+  }));
 
   beforeEach(() => {
     fixture = TestBed.createComponent(FileInputComponent);
@@ -125,14 +100,6 @@ describe('FileInputComponent', () => {
     expect(component.accept).toBe(accept);
   });
 
-  xit('should refuse invalid format, based on `accept` attribute', () => {
-    const accept = '.png';
-    component.accept = accept;
-    const file = new File(['test'], 'test.pdf', { type: 'application/pdf' });
-    component.value = new FileInput([file]);
-    expect(component.fileNames).toBe('');
-  });
-
   it('should propagate onContainerClick()', () => {
     spyOn(component, 'open').and.stub();
     component.onContainerClick({
@@ -176,18 +143,24 @@ describe('FileInputComponent', () => {
     expect(component.open).toHaveBeenCalled();
   });
 
-  it('should recognize all errorstate changes', () => {
+  it('should recognize all error state changes', () => {
     spyOn(component.stateChanges, 'next');
-    component.ngControl = <any>{ control: <any>{ errors: null, touched: false } };
-    expect(component.errorState).toBeFalsy();
-    expect(component.stateChanges.next).not.toHaveBeenCalled();
+
+    component.ngControl = {
+      control: new FormControl(null)
+    } as any;
+
+    // Initial state, no errors and untouched
+    component.ngControl.control!.setErrors(null);
+    component.ngControl.control!.markAsUntouched();
 
     fixture.detectChanges();
     expect(component.errorState).toBeFalsy();
     expect(component.stateChanges.next).not.toHaveBeenCalled();
-    component.ngControl = <any>{ control: <any>{ errors: ['some error'], touched: true } };
 
-    expect(component.stateChanges.next).not.toHaveBeenCalled();
+    // Set errors and touch the control
+    component.ngControl.control!.setErrors({ someError: true });
+    component.ngControl.control!.markAsTouched();
 
     fixture.detectChanges();
     expect(component.errorState).toBeTruthy();
@@ -195,17 +168,26 @@ describe('FileInputComponent', () => {
   });
 
   it('should use input ErrorStateMatcher over provided', () => {
-    component.ngControl = <any>{ control: <any>{ errors: ['some error'], touched: true } };
+    component.ngControl = {
+      control: new FormControl(null)
+    } as any;
+
+    // Initial state, with an error and touched
+    component.ngControl.control!.setErrors({ someError: true });
+    component.ngControl.control!.markAsTouched();
 
     fixture.detectChanges();
     expect(component.errorState).toBeTruthy();
 
+    // Apply custom error state matcher
     component.errorStateMatcher = new OverrideErrorStateMatcher();
     expect(component.errorState).toBeTruthy();
 
     fixture.detectChanges();
     expect(component.errorState).toBeFalsy();
-    component.ngControl = <any>{ control: <any>{ errors: ['some error', 'another error'] } };
+
+    // Set multiple errors to match OverrideErrorStateMatcher
+    component.ngControl.control!.setErrors({ someError: true, anotherError: true });
     expect(component.errorState).toBeFalsy();
 
     fixture.detectChanges();

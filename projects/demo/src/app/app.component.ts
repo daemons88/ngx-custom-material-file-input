@@ -8,6 +8,7 @@ import { FileValidator } from 'ngx-custom-material-file-input';
   styleUrls: ['./app.component.css'],
 })
 export class AppComponent {
+  private readonly validFileTypes = ['image/jpeg', 'image/png'];
   private readonly maxSizeBytes = 2097152; // 2 MB
   public demoForm: FormGroup;
 
@@ -17,7 +18,11 @@ export class AppComponent {
     this.demoForm = this.formBuilder.group({
       basicfile: [
         '',
-        [Validators.required, FileValidator.maxContentSize(this.maxSizeBytes)],
+        [
+          Validators.required,
+          FileValidator.maxContentSize(this.maxSizeBytes),
+          FileValidator.acceptedMimeTypes(this.validFileTypes),
+        ],
       ],
     });
   }

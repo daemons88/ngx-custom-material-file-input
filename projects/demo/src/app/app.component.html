@@ -152,6 +152,9 @@
           this.basicfile?.getError("maxContentSize").actualSize | byteFormat
         }}).
       </mat-error>
+      <mat-error *ngIf="this.basicfile?.hasError('acceptedMimeTypes')">
+        <p>Accepted MIME types: {{  this.basicfile?.getError("acceptedMimeTypes").validTypes.join(', ') }}</p>
+      </mat-error>
     </mat-form-field>
   </form>
 </div>
