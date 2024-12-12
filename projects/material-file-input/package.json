@@ -1,6 +1,6 @@
 {
   "name": "ngx-custom-material-file-input",
-  "version": "18.0.0",
+  "version": "19.0.0",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -15,10 +15,10 @@
     "mat-form-field"
   ],
   "peerDependencies": {
-    "@angular/cdk": "^18.0.0",
-    "@angular/common": "^18.0.0",
-    "@angular/core": "^18.0.0",
-    "@angular/material": "^18.0.0"
+    "@angular/cdk": "^19.0.0",
+    "@angular/common": "^19.0.0",
+    "@angular/core": "^19.0.0",
+    "@angular/material": "^19.0.0"
   },
   "dependencies": {
     "tslib": "^2.3.0"

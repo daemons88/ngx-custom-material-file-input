@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ElementRef, OnDestroy, HostBinding, Renderer2, HostListener, Optional, Self, DoCheck } from '@angular/core';
+import { Component, OnInit, Input, ElementRef, OnDestroy, HostBinding, Renderer2, HostListener, Optional, Self, DoCheck, Inject } from '@angular/core';
 import { ControlValueAccessor, NgControl, NgForm, FormGroupDirective } from '@angular/forms';
 import { MatFormFieldControl } from "@angular/material/form-field";
 import { ErrorStateMatcher } from '@angular/material/core';
@@ -18,6 +18,7 @@ import { Subject } from 'rxjs/internal/Subject';
 export class FileInputComponent extends FileInputMixinBase implements MatFormFieldControl<FileInput>, ControlValueAccessor, OnInit, OnDestroy, DoCheck {
   static nextId = 0;
 
+  stateChanges = new Subject<void>();
   focused = false;
   controlType = 'file-input';
 
@@ -29,19 +30,39 @@ export class FileInputComponent extends FileInputMixinBase implements MatFormFie
 
   @Input() valuePlaceholder: string;
   @Input() accept: string | null = null;
-  @Input() override errorStateMatcher: ErrorStateMatcher;
+  @Input() errorStateMatcher: ErrorStateMatcher;
 
   @HostBinding() id = `ngx-mat-file-input-${FileInputComponent.nextId++}`;
   @HostBinding('attr.aria-describedby') describedBy = '';
 
+  get errorState(): boolean {
+    return this.errorStateMatcher.isErrorState(
+      this.ngControl?.control || null,
+      this._parentForm || this._parentFormGroup
+    );
+  }
+
   setDescribedByIds(ids: string[]) {
     this.describedBy = ids.join(' ');
+  }
+
+  updateErrorState(): void {
+    const oldState = this.errorState;
+    const newState = this.errorStateMatcher.isErrorState(
+      this.ngControl?.control || null,
+      this._parentForm || this._parentFormGroup
+    );
+
+    if (oldState !== newState) {
+      this.stateChanges.next();
+    }
   }
 
   @Input()
   get value(): FileInput | null {
     return this.empty ? null : new FileInput(this._elementRef.nativeElement.value || []);
   }
+
   set value(fileInput: FileInput | null) {
     if (fileInput) {
       this.writeValue(fileInput);
@@ -113,15 +134,15 @@ export class FileInputComponent extends FileInputMixinBase implements MatFormFie
    * @see https://angular.io/api/forms/ControlValueAccessor
    */
   constructor(
-    private fm: FocusMonitor,
+    @Inject(FocusMonitor) private fm: FocusMonitor,
     private _elementRef: ElementRef,
     private _renderer: Renderer2,
-    public override _defaultErrorStateMatcher: ErrorStateMatcher,
+    @Inject(ErrorStateMatcher) public _defaultErrorStateMatcher: ErrorStateMatcher,
     @Optional()
     @Self()
-    public override ngControl: NgControl,
-    @Optional() public override _parentForm: NgForm,
-    @Optional() public override _parentFormGroup: FormGroupDirective,
+    @Inject(NgControl) public ngControl: NgControl,
+    @Inject(NgForm) @Optional() public _parentForm: NgForm,
+    @Inject(FormGroupDirective) @Optional() public _parentFormGroup: FormGroupDirective,
   ) {
     super(_defaultErrorStateMatcher, _parentForm, _parentFormGroup, ngControl, new Subject<void>())
 
