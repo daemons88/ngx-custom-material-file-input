@@ -9,10 +9,11 @@ import { FileInput } from '../models/file-input.model';
 import { Subject } from 'rxjs/internal/Subject';
 
 @Component({
-  selector: 'ngx-mat-file-input',
-  templateUrl: './file-input.component.html',
-  styleUrls: ['./file-input.component.css'],
-  providers: [{ provide: MatFormFieldControl, useExisting: FileInputComponent }]
+    selector: 'ngx-mat-file-input',
+    templateUrl: './file-input.component.html',
+    styleUrls: ['./file-input.component.css'],
+    providers: [{ provide: MatFormFieldControl, useExisting: FileInputComponent }],
+    standalone: false
 })
 export class FileInputComponent extends FileInputMixinBase implements MatFormFieldControl<FileInput>, ControlValueAccessor, OnInit, OnDestroy, DoCheck {
   static nextId = 0;

@@ -2,7 +2,8 @@ import { Pipe, PipeTransform, Optional, Inject } from '@angular/core';
 import { FileInputConfig, NGX_MAT_FILE_INPUT_CONFIG } from '../models/file-input-config.model';
 
 @Pipe({
-  name: 'byteFormat'
+    name: 'byteFormat',
+    standalone: false
 })
 export class ByteFormatPipe implements PipeTransform {
   private unit: string;
