@@ -2,7 +2,7 @@ import { FormGroupDirective, NgControl, NgForm } from '@angular/forms';
 import { ErrorStateMatcher } from '@angular/material/core';
 import { Subject } from 'rxjs';
 
-/** Base class for components that need error state management */
+/** Base class for error state management */
 export class FileInputBase {
   private _errorState = false;
 
@@ -32,6 +32,3 @@ export class FileInputBase {
     }
   }
 }
-
-/** Class to manage error state in file-input components */
-export const FileInputMixinBase = FileInputBase;

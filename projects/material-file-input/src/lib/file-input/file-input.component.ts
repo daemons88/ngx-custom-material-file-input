@@ -4,7 +4,7 @@ import { MatFormFieldControl } from "@angular/material/form-field";
 import { ErrorStateMatcher } from '@angular/material/core';
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { FocusMonitor } from '@angular/cdk/a11y';
-import { FileInputMixinBase } from './file-input-mixin';
+import { FileInputBase } from './file-input.base';
 import { FileInput } from '../models/file-input.model';
 import { Subject } from 'rxjs/internal/Subject';
 
@@ -15,7 +15,7 @@ import { Subject } from 'rxjs/internal/Subject';
     providers: [{ provide: MatFormFieldControl, useExisting: FileInputComponent }],
     standalone: false
 })
-export class FileInputComponent extends FileInputMixinBase implements MatFormFieldControl<FileInput>, ControlValueAccessor, OnInit, OnDestroy, DoCheck {
+export class FileInputComponent extends FileInputBase implements MatFormFieldControl<FileInput>, ControlValueAccessor, OnInit, OnDestroy, DoCheck {
   static nextId = 0;
 
   focused = false;
