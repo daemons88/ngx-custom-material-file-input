@@ -156,5 +156,24 @@
         <p>Accepted MIME types: {{  this.basicfile?.getError("acceptedMimeTypes").validTypes.join(', ') }}</p>
       </mat-error>
     </mat-form-field>
+    <br>
+    <br>
+    <mat-form-field>
+      <mat-label>Multiple input file</mat-label>
+      <ngx-mat-file-input
+        #fileInput
+        formControlName="multiplefile"
+        multiple
+      ></ngx-mat-file-input>
+      <button
+        mat-icon-button
+        matSuffix
+        *ngIf="!fileInput.empty"
+        (click)="fileInput.clear($event)"
+      >
+        <mat-icon>clear</mat-icon>
+      </button>
+      <mat-icon matSuffix *ngIf="fileInput.empty">folder</mat-icon>
+    </mat-form-field>
   </form>
 </div>

@@ -25,6 +25,7 @@ export class AppComponent {
           FileValidator.acceptedMimeTypes(this.validFileTypes),
         ],
       ],
+      multiplefile: []
     });
   }
 

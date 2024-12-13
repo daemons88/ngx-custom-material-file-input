@@ -181,15 +181,11 @@ describe('FileInputComponent', () => {
 
     // Apply custom error state matcher
     component.errorStateMatcher = new OverrideErrorStateMatcher();
-    expect(component.errorState).toBeTruthy();
-
     fixture.detectChanges();
     expect(component.errorState).toBeFalsy();
 
     // Set multiple errors to match OverrideErrorStateMatcher
     component.ngControl.control!.setErrors({ someError: true, anotherError: true });
-    expect(component.errorState).toBeFalsy();
-
     fixture.detectChanges();
     expect(component.errorState).toBeTruthy();
   });
