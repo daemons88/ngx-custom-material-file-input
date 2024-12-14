@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ElementRef, OnDestroy, HostBinding, Renderer2, HostListener, Optional, Self, DoCheck, Inject } from '@angular/core';
+import { Component, OnInit, Input, ElementRef, OnDestroy, HostBinding, Renderer2, HostListener, Optional, Self, DoCheck } from '@angular/core';
 import { ControlValueAccessor, NgControl, NgForm, FormGroupDirective } from '@angular/forms';
 import { MatFormFieldControl } from "@angular/material/form-field";
 import { ErrorStateMatcher } from '@angular/material/core';
@@ -26,10 +26,13 @@ export class FileInputComponent extends FileInputBase implements MatFormFieldCon
   private _placeholder: string;
   private _required = false;
   private _multiple = false;
+  private _previewUrls: string[] = [];
+  private _objectURLs: string[] = [];
 
   @Input() valuePlaceholder: string;
   @Input() accept: string | null = null;
   @Input() errorStateMatcher: ErrorStateMatcher;
+  @Input() defaultIconBase64: string = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjI0Ij48cGF0aCBkPSJNMCAwaDI0djI0SDBWMHoiIGZpbGw9Im5vbmUiLz48cGF0aCBkPSJNMTUgMkg2Yy0xLjEgMC0yIC45LTIgMnYxNmMwIDEuMS45IDIgMiAyaDEyYzEuMSAwIDItLjkgMi0yVjdsLTUtNXpNNiAyMFY0aDh2NGg0djEySDZ6bTEwLTEwdjVjMCAyLjIxLTEuNzkgNC00IDRzLTQtMS43OS00LTRWOC41YzAtMS40NyAxLjI2LTIuNjQgMi43Ni0yLjQ5IDEuMy4xMyAyLjI0IDEuMzIgMi4yNCAyLjYzVjE1aC0yVjguNWMwLS4yOC0uMjItLjUtLjUtLjVzLS41LjIyLS41LjVWMTVjMCAxLjEuOSAyIDIgMnMyLS45IDItMnYtNWgyeiIvPjwvc3ZnPg==';
 
   override get errorState(): boolean {
     const control = this.ngControl?.control || null;
@@ -42,7 +45,7 @@ export class FileInputComponent extends FileInputBase implements MatFormFieldCon
   @HostBinding() id = `ngx-mat-file-input-${FileInputComponent.nextId++}`;
   @HostBinding('attr.aria-describedby') describedBy = '';
 
-  setDescribedByIds(ids: string[]) {
+  public setDescribedByIds(ids: string[]) {
     this.describedBy = ids.join(' ');
   }
 
@@ -110,7 +113,11 @@ export class FileInputComponent extends FileInputBase implements MatFormFieldCon
     this.stateChanges.next();
   }
 
-  onContainerClick(event: MouseEvent) {
+  get previewUrls(): string[] {
+    return this._previewUrls;
+  }
+
+  public onContainerClick(event: MouseEvent) {
     if ((event.target as Element).tagName.toLowerCase() !== 'input' && !this.disabled) {
       this._elementRef.nativeElement.querySelector('input').focus();
       this.focused = true;
@@ -150,15 +157,15 @@ export class FileInputComponent extends FileInputBase implements MatFormFieldCon
     return this.value ? this.value.fileNames : this.valuePlaceholder;
   }
 
-  writeValue(obj: FileInput | null): void {
+  public writeValue(obj: FileInput | null): void {
     this._renderer.setProperty(this._elementRef.nativeElement, 'value', obj instanceof FileInput ? obj.files : null);
   }
 
-  registerOnChange(fn: (_: any) => void): void {
+  public registerOnChange(fn: (_: any) => void): void {
     this._onChange = fn;
   }
 
-  registerOnTouched(fn: any): void {
+  public registerOnTouched(fn: any): void {
     this._onTouched = fn;
   }
 
@@ -166,12 +173,13 @@ export class FileInputComponent extends FileInputBase implements MatFormFieldCon
    * Remove all files from the file input component
    * @param [event] optional event that may have triggered the clear action
    */
-  clear(event?: Event) {
+  public clear(event?: Event) {
     if (event) {
       event.preventDefault();
       event.stopPropagation();
     }
     this.value = new FileInput([]);
+    this._previewUrls = [];
     this._elementRef.nativeElement.querySelector('input').value = null;
     this._onChange(this.value);
   }
@@ -179,37 +187,82 @@ export class FileInputComponent extends FileInputBase implements MatFormFieldCon
   @HostListener('change', ['$event'])
   change(event: Event) {
     const fileList: FileList | null = (<HTMLInputElement>event.target).files;
-    const fileArray: File[] = [];
-    if (fileList) {
+  
+    if (!fileList) return;
+  
+    if (this.multiple) {
+      const existingFiles = this.value?.files || [];
+      const newFiles: File[] = [];
+  
       for (let i = 0; i < fileList.length; i++) {
-        fileArray.push(fileList[i]);
+        newFiles.push(fileList[i]);
       }
+  
+      const updatedFiles = [...existingFiles, ...newFiles];
+      this.value = new FileInput(updatedFiles);
+    } else {
+      this.value = new FileInput(Array.from(fileList));
     }
-    this.value = new FileInput(fileArray);
+  
     this._onChange(this.value);
+    this.updatePreviewUrls();
+  }
+
+  private updatePreviewUrls() {
+    this._objectURLs = [];
+    if (this.value?.files?.length) {
+      this._previewUrls = this.value.files.map((file) => {
+        const isImage = file.type.startsWith('image/');
+        if (isImage) {
+          const url = URL.createObjectURL(file);
+          this._objectURLs.push(url);
+          return url;
+        } else {
+          return this.defaultIconBase64;
+        }
+      });
+    } else {
+      this._previewUrls = [];
+    }
+  }
+
+  private revokeObjectURLs() {
+    this._objectURLs.forEach((url) => URL.revokeObjectURL(url));
+    this._objectURLs = [];
+  }
+
+  removeFile(index: number) {
+    if (!this.value?.files?.length) return;
+
+    const updatedFiles = [...this.value.files];
+    updatedFiles.splice(index, 1);
+    this.value = new FileInput(updatedFiles);
+    this._onChange(this.value);
+    this.updatePreviewUrls();
   }
 
   @HostListener('focusout')
-  blur() {
+  public blur() {
     this.focused = false;
     this._onTouched();
   }
 
-  setDisabledState(isDisabled: boolean): void {
+  public setDisabledState(isDisabled: boolean): void {
     this._renderer.setProperty(this._elementRef.nativeElement, 'disabled', isDisabled);
+  }
+
+  private open() {
+    if (!this.disabled) {
+      this._elementRef.nativeElement.querySelector('input').click();
+    }
   }
 
   ngOnInit() {
     this.multiple = coerceBooleanProperty(this.multiple);
   }
 
-  open() {
-    if (!this.disabled) {
-      this._elementRef.nativeElement.querySelector('input').click();
-    }
-  }
-
   ngOnDestroy() {
+    this.revokeObjectURLs();
     this.stateChanges.complete();
     this.fm.stopMonitoring(this._elementRef.nativeElement);
   }

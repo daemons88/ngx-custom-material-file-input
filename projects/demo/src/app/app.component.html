@@ -1,74 +1,3 @@
-<style>
-  :host {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-      Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
-      "Segoe UI Symbol";
-    font-size: 14px;
-    color: #333;
-    box-sizing: border-box;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    margin: 8px 0;
-  }
-
-  p {
-    margin: 0;
-  }
-
-  .spacer {
-    flex: 1;
-  }
-
-  .toolbar {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    background-color: #1976d2;
-    color: white;
-    font-weight: 600;
-  }
-
-  .toolbar img {
-    margin: 0 16px;
-  }
-
-  .toolbar #twitter-logo {
-    height: 40px;
-    margin: 0 8px;
-  }
-
-  .toolbar #youtube-logo {
-    height: 40px;
-    margin: 0 16px;
-  }
-
-  .toolbar #twitter-logo:hover,
-  .toolbar #youtube-logo:hover {
-    opacity: 0.8;
-  }
-
-  .content {
-    display: flex;
-    margin: 82px auto 32px;
-    padding: 0 16px;
-    max-width: 960px;
-    flex-direction: column;
-    align-items: center;
-  }
-</style>
-
 <!-- Toolbar -->
 <div class="toolbar" role="banner">
   <img
@@ -127,53 +56,73 @@
   <h1>Content</h1>
   <br />
   <form [formGroup]="demoForm">
-    <mat-form-field>
-      <mat-label>Basic input file</mat-label>
-      <ngx-mat-file-input
-        #fileInput
-        formControlName="basicfile"
-      ></ngx-mat-file-input>
-      <button
-        mat-icon-button
-        matSuffix
-        *ngIf="!fileInput.empty"
-        (click)="fileInput.clear($event)"
-      >
-        <mat-icon>clear</mat-icon>
-      </button>
-      <mat-icon matSuffix *ngIf="fileInput.empty">folder</mat-icon>
-      <mat-error *ngIf="this.basicfile?.hasError('required')">
-        Please select a file
-      </mat-error>
-      <mat-error *ngIf="this.basicfile?.hasError('maxContentSize')">
-        The total size must not exceed
-        {{ this.basicfile?.getError("maxContentSize").maxSize | byteFormat }}
-        ({{
-          this.basicfile?.getError("maxContentSize").actualSize | byteFormat
-        }}).
-      </mat-error>
-      <mat-error *ngIf="this.basicfile?.hasError('acceptedMimeTypes')">
-        <p>Accepted MIME types: {{  this.basicfile?.getError("acceptedMimeTypes").validTypes.join(', ') }}</p>
-      </mat-error>
-    </mat-form-field>
+    <!-- <div class="file-input-container">
+      <div class="file-preview" *ngIf="multipleFileInput.previewUrls.length > 0">
+        <img [src]="fileInput.previewUrl" alt="Preview Image" />
+      </div>
+      <mat-form-field>
+        <mat-label>Basic input file</mat-label>
+        <ngx-mat-file-input
+          #fileInput
+          formControlName="basicfile"
+        ></ngx-mat-file-input>
+        <button
+          mat-icon-button
+          matSuffix
+          *ngIf="!fileInput.empty"
+          (click)="fileInput.clear($event)"
+        >
+          <mat-icon>clear</mat-icon>
+        </button>
+        <mat-icon matSuffix *ngIf="fileInput.empty">folder</mat-icon>
+        <mat-error *ngIf="this.basicfile?.hasError('required')">
+          Please select a file
+        </mat-error>
+        <mat-error *ngIf="this.basicfile?.hasError('maxContentSize')">
+          The total size must not exceed
+          {{ this.basicfile?.getError("maxContentSize").maxSize | byteFormat }}
+          ({{
+            this.basicfile?.getError("maxContentSize").actualSize | byteFormat
+          }}).
+        </mat-error>
+        <mat-error *ngIf="this.basicfile?.hasError('acceptedMimeTypes')">
+          <p>Accepted MIME types: {{  this.basicfile?.getError("acceptedMimeTypes").validTypes.join(', ') }}</p>
+        </mat-error>
+      </mat-form-field>
+    </div> -->
     <br>
     <br>
-    <mat-form-field>
-      <mat-label>Multiple input file</mat-label>
-      <ngx-mat-file-input
-        #fileInput
-        formControlName="multiplefile"
-        multiple
-      ></ngx-mat-file-input>
-      <button
-        mat-icon-button
-        matSuffix
-        *ngIf="!fileInput.empty"
-        (click)="fileInput.clear($event)"
-      >
-        <mat-icon>clear</mat-icon>
-      </button>
-      <mat-icon matSuffix *ngIf="fileInput.empty">folder</mat-icon>
-    </mat-form-field>
+
+    <div class="file-input-container">
+      <div class="file-preview-list" *ngIf="multipleFileInput.previewUrls.length > 0">
+        <div class="file-preview" *ngFor="let url of multipleFileInput.previewUrls; let i = index">
+          <img [src]="url" alt="Preview Image" />
+          <button mat-icon-button (click)="multipleFileInput.removeFile(i)" aria-label="Remove file">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      
+    
+      <mat-form-field>
+        <mat-label>Multiple input file</mat-label>
+        <ngx-mat-file-input
+          #multipleFileInput
+          formControlName="multiplefile"
+          multiple
+        ></ngx-mat-file-input>
+        <button
+          mat-icon-button
+          matSuffix
+          *ngIf="!multipleFileInput.empty"
+          (click)="multipleFileInput.clear($event)"
+        >
+          <mat-icon>clear</mat-icon>
+        </button>
+        <mat-icon matSuffix *ngIf="multipleFileInput.empty">folder</mat-icon>
+      </mat-form-field>
+    </div>
+    
   </form>
 </div>
