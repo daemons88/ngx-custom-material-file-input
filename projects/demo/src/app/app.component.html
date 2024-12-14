@@ -56,9 +56,9 @@
   <h1>Content</h1>
   <br />
   <form [formGroup]="demoForm">
-    <!-- <div class="file-input-container">
-      <div class="file-preview" *ngIf="multipleFileInput.previewUrls.length > 0">
-        <img [src]="fileInput.previewUrl" alt="Preview Image" />
+    <div class="file-input-container">
+      <div class="one-file-preview" *ngIf="fileInput.previewUrls.length > 0">
+        <img [src]="fileInput.previewUrls[0]" alt="Preview Image" />
       </div>
       <mat-form-field>
         <mat-label>Basic input file</mat-label>
@@ -89,22 +89,11 @@
           <p>Accepted MIME types: {{  this.basicfile?.getError("acceptedMimeTypes").validTypes.join(', ') }}</p>
         </mat-error>
       </mat-form-field>
-    </div> -->
+    </div>
     <br>
     <br>
 
     <div class="file-input-container">
-      <div class="file-preview-list" *ngIf="multipleFileInput.previewUrls.length > 0">
-        <div class="file-preview" *ngFor="let url of multipleFileInput.previewUrls; let i = index">
-          <img [src]="url" alt="Preview Image" />
-          <button mat-icon-button (click)="multipleFileInput.removeFile(i)" aria-label="Remove file">
-            <mat-icon>close</mat-icon>
-          </button>
-        </div>
-      </div>
-
-      
-    
       <mat-form-field>
         <mat-label>Multiple input file</mat-label>
         <ngx-mat-file-input
@@ -122,6 +111,18 @@
         </button>
         <mat-icon matSuffix *ngIf="multipleFileInput.empty">folder</mat-icon>
       </mat-form-field>
+      <!-- Preview Optional -->
+      <div *ngIf="multipleFileInput.previewUrls.length > 0">
+        <div *ngFor="let previewUrl of multipleFileInput.previewUrls; let i = index" class="file-preview-container">
+          <img [src]="previewUrl" alt="File Preview" class="file-preview" />
+          <div class="file-info">
+            <p class="file-name">{{ multipleFileInput.value!.files[i].name }}</p>
+          </div>
+          <button mat-icon-button (click)="multipleFileInput.removeFile(i)" aria-label="Remove file">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      </div>
     </div>
     
   </form>
