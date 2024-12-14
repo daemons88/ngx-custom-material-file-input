@@ -251,7 +251,7 @@ export class FileInputComponent extends FileInputBase implements MatFormFieldCon
     this._renderer.setProperty(this._elementRef.nativeElement, 'disabled', isDisabled);
   }
 
-  private open() {
+  public open() {
     if (!this.disabled) {
       this._elementRef.nativeElement.querySelector('input').click();
     }

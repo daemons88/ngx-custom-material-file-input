@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 
 import { FileInput } from '../models/file-input.model';
 import { FileInputComponent } from './file-input.component';
+import { By } from '@angular/platform-browser';
 
 /**
  * Shows error state on a control if it is touched and has any error.
@@ -121,26 +122,19 @@ describe('FileInputComponent', () => {
     expect(component.open).not.toHaveBeenCalled();
   });
 
-  it('should remove file from Input', fakeAsync(() => {
+  it('should clear all files and reset state', () => {
     const file = new File(['test'], 'test.pdf', { type: 'application/pdf' });
     component.value = new FileInput([file]);
-    fixture.nativeElement.querySelector('input').dispatchEvent(new Event('input'));
-    tick();
     fixture.detectChanges();
+    
     expect(component.value.files.length).toBe(1);
-    // expect(fixture.nativeElement.querySelector('input').files.length).toBe(1); // is 0, this should be incremented
+  
     component.clear();
-    tick();
     fixture.detectChanges();
-    expect(component.empty).toBeTruthy();
+  
     expect(component.value).toBeNull();
-    // expect(fixture.nativeElement.querySelector('input').value).toBe('');
-  }));
-
-  xit('should propagate click', () => {
-    spyOn(component, 'open').and.stub();
-    fixture.debugElement.nativeElement.click();
-    expect(component.open).toHaveBeenCalled();
+    expect(component.empty).toBeTruthy();
+    expect(component.previewUrls.length).toBe(0);
   });
 
   it('should recognize all error state changes', () => {
@@ -188,5 +182,87 @@ describe('FileInputComponent', () => {
     component.ngControl.control!.setErrors({ someError: true, anotherError: true });
     fixture.detectChanges();
     expect(component.errorState).toBeTruthy();
+  });
+
+  it('should set required property correctly', () => {
+    component.required = true;
+    fixture.detectChanges();
+    expect(component.required).toBeTrue();
+  });
+  
+  it('should set disabled state correctly', () => {
+    component.disabled = true;
+    fixture.detectChanges();
+    expect(component.isDisabled).toBeTrue();
+    expect(component.disabled).toBeTrue();
+  });
+
+  it('should update value correctly', () => {
+    const file = new File(['test'], 'test.pdf', { type: 'application/pdf' });
+    component.value = new FileInput([file]);
+    fixture.detectChanges();
+  
+    expect(component.value.files.length).toBe(1);
+    expect(component.value.files[0].name).toBe('test.pdf');
+  });
+
+  it('should generate preview URLs for image files', async () => {
+    const fileInput = fixture.debugElement.query(By.css('input[type="file"]')).nativeElement;
+    const file = new File(['dummy content'], 'test-image.png', { type: 'image/png' });
+  
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(file);
+  
+    fileInput.files = dataTransfer.files;
+    const event = { target: fileInput } as Event;
+    component.change(event);
+  
+    await fixture.whenStable();
+    fixture.detectChanges();
+  
+    expect(component.previewUrls.length).toBe(1);
+    expect(component.previewUrls[0]).toContain('blob:');
+  });
+  
+  it('should use default icon for non-image files', async () => {
+    const nonImageFile = new File(['file'], 'file.pdf', { type: 'application/pdf' });
+    component.value = new FileInput([nonImageFile]);
+  
+    const event = new Event('change');
+    Object.defineProperty(event, 'target', {
+      writable: true,
+      value: { files: [nonImageFile] },
+    });
+    component.change(event);
+  
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(component.previewUrls.length).toBe(1);
+    expect(component.previewUrls[0]).toBe(component.defaultIconBase64);
+  });
+
+  it('should remove a file and update previewUrls', async () => {
+    const file1 = new File(['file1'], 'file1.pdf', { type: 'application/pdf' });
+    const file2 = new File(['file2'], 'file2.pdf', { type: 'application/pdf' });
+    component.value = new FileInput([file1, file2]);
+
+    const event = new Event('change');
+    Object.defineProperty(event, 'target', {
+      writable: true,
+      value: { files: [file1, file2] },
+    });
+    component.change(event);
+
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(component.value.files.length).toBe(2);
+    expect(component.previewUrls.length).toBe(2);
+
+    component.removeFile(0);
+
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(component.value.files.length).toBe(1);
+    expect(component.previewUrls.length).toBe(1);
   });
 });

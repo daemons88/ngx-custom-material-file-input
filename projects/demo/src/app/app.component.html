@@ -57,6 +57,7 @@
   <br />
   <form [formGroup]="demoForm">
     <div class="file-input-container">
+      <!-- Preview Optional -->
       <div class="one-file-preview" *ngIf="fileInput.previewUrls.length > 0">
         <img [src]="fileInput.previewUrls[0]" alt="Preview Image" />
       </div>
