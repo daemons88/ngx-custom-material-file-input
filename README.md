@@ -14,7 +14,7 @@ This project is a copy of [ngx-material-file-input](https://github.com/merlosy/n
 | 4.0.0           | 17.0.0          |
 | 18.0.0          | 18.0.0          |
 
-From now on, the package version will be the same as the Angular version so I don't have to update the table all the time. In this version 18, a new validator for MIME types was added, an example was added in the release notes.
+From now on, the package version will be the same as the Angular version so I don't have to update the table all the time.
 
 - Latest version is using **Angular 19**
 
