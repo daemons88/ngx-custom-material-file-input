@@ -16,7 +16,7 @@ This project is a copy of [ngx-material-file-input](https://github.com/merlosy/n
 
 From now on, the package version will be the same as the Angular version so I don't have to update the table all the time. In this version 18, a new validator for MIME types was added, an example was added in the release notes.
 
-This text is a copy from the original (changing only the necessary package names):
+- Latest version is using **Angular 19**
 
 # material-file-input
 
@@ -26,8 +26,10 @@ This project provides :
 * a `FileValidator` with `acceptedMimeTypes`, to limit the format types using the mime types
 * a `FileValidator` with `maxContentSize`, to limit the file size
 * a `ByteFormatPipe` to format the file size in a human-readable format
+* a `previewUrls` to receive the images/file as a url to show in a preview
 
 For more code samples, have a look at the [DEMO SITE](https://merlosy.github.io/ngx-material-file-input)
+or in the [release notes](https://github.com/daemons88/ngx-custom-material-file-input/releases). 
 
 ## Install
 
@@ -71,15 +73,17 @@ implements: [MatFormFieldControl](https://material.angular.io/components/form-fi
 
 **Additionnal properties**
 
-| Name                                  | Description                                                                                                                 |
-| ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| _@Input()_ valuePlaceholder: `string` | Placeholder for file names, empty by default                                                                                |
-| _@Input()_ multiple: `boolean`        | Allows multiple file inputs, `false` by default                                                                             |
-| _@Input()_ autofilled: `boolean`      | Whether the input is currently in an autofilled state. If property is not present on the control it is assumed to be false. |
-| _@Input()_ accept: `string`           | Any value that `accept` attribute can get. [more about "accept"](https://www.w3schools.com/tags/att_input_accept.asp)       |
-| value: `FileInput`                    | Form control value                                                                                                          |
-| empty: `boolean`                    | Whether the input is empty (no files) or not                                                                                                          |
-| clear(): `(event?) => void`                    | Removes all files from the input                                                                                                          |
+| Name                                   | Description                                                                                                                 |
+| -------------------------------------  | --------------------------------------------------------------------------------------------------------------------------- |
+| _@Input()_ valuePlaceholder: `string`  | Placeholder for file names, empty by default                                                                                |
+| _@Input()_ multiple: `boolean`         | Allows multiple file inputs, `false` by default                                                                             |
+| _@Input()_ autofilled: `boolean`       | Whether the input is currently in an autofilled state. If property is not present on the control it is assumed to be false. |
+| _@Input()_ accept: `string`            | Any value that `accept` attribute can get. [more about "accept"](https://www.w3schools.com/tags/att_input_accept.asp)       |
+| value: `FileInput`                     | Form control value                                                                                                          |
+| empty: `boolean`                       | Whether the input is empty (no files) or not                                                                                |
+| clear(): `(event?) => void`            | Removes all files from the input                                                                                            |
+| previewUrls: `string[]`                | Contains a generate url in memory to show the previews of the files                                                         |
+| _@Input()_ defaultIconBase64: `string` | Set the default icon for the previews of files that are not images, is a base64 string, example: data:image/svg+xml;base64,PHN2ZyB.....                                                                                            |
 
 ### ByteFormatPipe
 

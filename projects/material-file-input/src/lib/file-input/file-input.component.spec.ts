@@ -265,4 +265,25 @@ describe('FileInputComponent', () => {
     expect(component.value.files.length).toBe(1);
     expect(component.previewUrls.length).toBe(1);
   });
+
+  it('should use the provided defaultIconBase64 for non-image files', async () => {
+    const customIcon = 'data:image/svg+xml;base64,PHN2ZyBjbGFzcz0ic3ZnLWljb24iIHN0eWxlPSJ3aWR0aDogMWVtOyBoZWlnaHQ6IDFlbTt2ZXJ0aWNhbC1hbGlnbjogbWlkZGxlO2ZpbGw6IGN1cnJlbnRDb2xvcjtvdmVyZmxvdzogaGlkZGVuOyIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGQ9Ik01NTMuOTg0IDM4NGwyMzUuOTg5MzMzIDAtMjM1Ljk4OTMzMy0yMzMuOTg0IDAgMjMzLjk4NHpNMjU2IDg2LjAxNmwzNDIuMDE2IDAgMjU2IDI1NiAwIDUxMnEwIDM0LjAwNTMzMy0yNS45ODQgNTkuMDA4dC01OS45ODkzMzMgMjUuMDAyNjY3bC01MTIgMHEtMzQuMDA1MzMzIDAtNTkuOTg5MzMzLTI1LjAwMjY2N3QtMjUuOTg0LTU5LjAwOGwyLjAwNTMzMy02ODMuOTg5MzMzcTAtMzQuMDA1MzMzIDI1LjAwMjY2Ny01OS4wMDh0NTkuMDA4LTI1LjAwMjY2N3oiICAvPjwvc3ZnPg==';
+    component.defaultIconBase64 = customIcon;
+  
+    const nonImageFile = new File(['file'], 'file.txt', { type: 'text/plain' });
+    component.value = new FileInput([nonImageFile]);
+  
+    const event = new Event('change');
+    Object.defineProperty(event, 'target', {
+      writable: true,
+      value: { files: [nonImageFile] },
+    });
+    component.change(event);
+  
+    await fixture.whenStable();
+    fixture.detectChanges();
+  
+    expect(component.previewUrls.length).toBe(1);
+    expect(component.previewUrls[0]).toBe(customIcon);
+  });
 });
