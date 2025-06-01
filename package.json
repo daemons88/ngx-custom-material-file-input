@@ -9,22 +9,22 @@
     "pack-lib": "cd dist/material-file-input && npm pack",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "install-local": "npm run build-library && npm run pack-lib && npm install dist/material-file-input/ngx-custom-material-file-input-19.0.1.tgz",
-    "publish": "npm run build-library && npm run pack-lib && npm publish dist/material-file-input/ngx-custom-material-file-input-19.0.1.tgz --access public"
+    "install-local": "npm run build-library && npm run pack-lib && npm install dist/material-file-input/ngx-custom-material-file-input-20.0.0.tgz",
+    "publish": "npm run build-library && npm run pack-lib && npm publish dist/material-file-input/ngx-custom-material-file-input-20.0.0.tgz --access public"
   },
   "private": true,
   "dependencies": {
     "@angular/animations": "^20.0.0",
-    "@angular/cdk": "^19.0.3",
+    "@angular/cdk": "^20.0.1",
     "@angular/common": "^20.0.0",
     "@angular/compiler": "^20.0.0",
     "@angular/core": "^20.0.0",
     "@angular/forms": "^20.0.0",
-    "@angular/material": "^19.0.3",
+    "@angular/material": "^20.0.1",
     "@angular/platform-browser": "^20.0.0",
     "@angular/platform-browser-dynamic": "^20.0.0",
     "@angular/router": "^20.0.0",
-    "ngx-custom-material-file-input": "file:dist/material-file-input/ngx-custom-material-file-input-19.0.1.tgz",
+    "ngx-custom-material-file-input": "file:dist/material-file-input/ngx-custom-material-file-input-20.0.0.tgz",
     "rxjs": "~7.5.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"
