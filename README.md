@@ -16,7 +16,7 @@ This project is a copy of [ngx-material-file-input](https://github.com/merlosy/n
 
 From now on, the package version will be the same as the Angular version so I don't have to update the table all the time.
 
-- Latest version is using **Angular 19**
+- Latest version is using **Angular 20**
 
 # material-file-input
 
@@ -97,7 +97,12 @@ _Output:_ 100 MB
 
 ### FileValidator
 
-| Name                                           | Description                                     | Error structure                           |
-| ---------------------------------------------- | ----------------------------------------------- | ----------------------------------------- |
-| maxContentSize(value: `number`): `ValidatorFn` | Limit the total file(s) size to the given value | `{ actualSize: number, maxSize: number }` |
-| acceptedMimeTypes(value: `string`): `ValidatorFn` | Limit the mime types valid to use given value | `{ validTypes: string }` |
+| Name                                              | Description                                                   | Error structure                             | Added in Version |
+| ------------------------------------------------- | ------------------------------------------------------------- | ------------------------------------------- | ---------------- |
+| maxContentSize(value: `number`): `ValidatorFn`    | Limit the total file(s) size to the given value               | `{ actualSize: number, maxSize: number }`   | v1               |
+| acceptedMimeTypes(value: `string`): `ValidatorFn` | Limit the mime types valid to use given value                 | `{ validTypes: string }`                    | v18              |
+| minFileCount(value: `number`): `ValidatorFn`      | Limit the total of minimum file(s) loaded to the given value  | `{ minCount: number, actualCount: number }` | v20              |
+| maxFileCount(value: `number`): `ValidatorFn`      |  Limit the total of maximum file(s) loaded to the given value | `{ maxCount: number, actualCount: number }` | v20              |
+
+
+**Sponsor by: [MyTalentAid](https://mytalentaid.com/?lang=en)**

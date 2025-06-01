@@ -7,18 +7,20 @@ export class FileValidator {
    *
    * @param bytes max number of bytes allowed
    *
-   * @returns
+   * @returns Validator function
    */
   static maxContentSize(bytes: number): ValidatorFn {
     return (control: AbstractControl): { [key: string]: any } | null => {
       const size =
-        control && control.value
+        control && control.value && control.value.files
           ? (control.value as FileInput).files
-              .map((f) => f.size)
-              .reduce((acc, i) => acc + i, 0)
+              .map((file) => file.size)
+              .reduce((acc, fileSize) => acc + fileSize, 0)
           : 0;
-      const condition = bytes >= size;
-      return condition
+
+      const isValid = bytes >= size;
+
+      return isValid
         ? null
         : {
             maxContentSize: {
@@ -28,7 +30,6 @@ export class FileValidator {
           };
     };
   }
-
 
   /**
    * Validator function to validate accepted file formats
@@ -49,6 +50,65 @@ export class FileValidator {
         };
       }
       
+      return null;
+    };
+  }
+
+  /**
+   * Validator function to validate the min number of uploaded files
+   *
+   * @param minCount Number of minimum files to upload
+   * @returns Validator function
+   */
+  static minFileCount(minCount: number): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      if (!control.value) {
+        return {
+          minFileCount: {
+            minCount: minCount,
+            actualCount: 0
+          }
+        };
+      }
+
+      const files: File[] = (control.value as FileInput).files;
+
+      if (files && files.length < minCount) {
+        return {
+          minFileCount: {
+            minCount: minCount,
+            actualCount: files.length
+          }
+        };
+      }
+
+      return null;
+    };
+  }
+
+  /**
+   * Validator function to validate the max number of uploaded files
+   *
+   * @param maxCount Number of maximum files to upload
+   * @returns Validator function
+   */
+  static maxFileCount(maxCount: number): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      if (!control.value) {
+        return null;
+      }
+
+      const files: File[] = control.value ? (control.value as FileInput).files : [];
+
+      if (files && files.length > maxCount) {
+        return {
+          maxFileCount: {
+            maxCount: maxCount,
+            actualCount: files.length
+          }
+        };
+      }
+
       return null;
     };
   }

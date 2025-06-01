@@ -11,6 +11,8 @@ import { FileValidator } from 'ngx-custom-material-file-input';
 export class AppComponent {
   private readonly validFileTypes = ['image/jpeg', 'image/png'];
   private readonly maxSizeBytes = 2097152; // 2 MB
+  public readonly minFiles = 1;
+  public readonly maxFiles = 2;
   public demoForm: FormGroup;
 
   title = 'demo';
@@ -22,14 +24,24 @@ export class AppComponent {
         [
           Validators.required,
           FileValidator.maxContentSize(this.maxSizeBytes),
-          FileValidator.acceptedMimeTypes(this.validFileTypes),
+          FileValidator.acceptedMimeTypes(this.validFileTypes)
         ],
       ],
-      multiplefile: []
+      multiplefile: [
+        '',
+        [
+          FileValidator.minFileCount(this.minFiles),
+          FileValidator.maxFileCount(this.maxFiles)
+        ]
+      ]
     });
   }
 
   get basicfile() {
     return this.demoForm.get('basicfile');
+  }
+
+  get multiplefile() {
+    return this.demoForm.get('multiplefile');
   }
 }

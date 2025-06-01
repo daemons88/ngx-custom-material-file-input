@@ -81,23 +81,23 @@
               @if (fileInput.empty) {
                 <mat-icon matSuffix>folder</mat-icon>
               }
-              @if (this.basicfile?.hasError('required')) {
+              @if (basicfile?.hasError('required')) {
                 <mat-error>
                   Please select a file
                 </mat-error>
               }
-              @if (this.basicfile?.hasError('maxContentSize')) {
+              @if (basicfile?.hasError('maxContentSize')) {
                 <mat-error>
                   The total size must not exceed
-                  {{ this.basicfile?.getError("maxContentSize").maxSize | byteFormat }}
+                  {{ basicfile?.getError("maxContentSize").maxSize | byteFormat }}
                   ({{
-                  this.basicfile?.getError("maxContentSize").actualSize | byteFormat
+                  basicfile?.getError("maxContentSize").actualSize | byteFormat
                   }}).
                 </mat-error>
               }
-              @if (this.basicfile?.hasError('acceptedMimeTypes')) {
+              @if (basicfile?.hasError('acceptedMimeTypes')) {
                 <mat-error>
-                  <p>Accepted MIME types: {{  this.basicfile?.getError("acceptedMimeTypes").validTypes.join(', ') }}</p>
+                  <p>Accepted MIME types: {{  basicfile?.getError("acceptedMimeTypes").validTypes.join(', ') }}</p>
                 </mat-error>
               }
             </mat-form-field>
@@ -125,24 +125,35 @@
                   @if (multipleFileInput.empty) {
                     <mat-icon matSuffix>folder</mat-icon>
                   }
+                  @if (multiplefile?.hasError('minFileCount')) {
+                    <mat-error>
+                      You need at least {{minFiles}} uploaded file
+                    </mat-error>
+                  }
+                  @if (multiplefile?.hasError('maxFileCount')) {
+                    <mat-error>
+                      You can have max {{maxFiles}} uploaded file
+                    </mat-error>
+                  }
                 </mat-form-field>
-                <!-- Preview Optional -->
-                @if (multipleFileInput.previewUrls.length > 0) {
-                  <div>
-                    @for (previewUrl of multipleFileInput.previewUrls; track previewUrl; let i = $index) {
-                      <div class="file-preview-container">
-                        <img [src]="previewUrl" alt="File Preview" class="file-preview" />
-                        <div class="file-info">
-                          <p class="file-name">{{ multipleFileInput.value!.files[i].name }}</p>
-                        </div>
-                        <button mat-icon-button (click)="multipleFileInput.removeFile(i)" aria-label="Remove file">
-                          <mat-icon>close</mat-icon>
-                        </button>
-                      </div>
-                    }
-                  </div>
-                }
               </div>
+
+              <!-- Preview Optional -->
+              @if (multipleFileInput.previewUrls.length > 0) {
+                <div class="previews-container">
+                  @for (previewUrl of multipleFileInput.previewUrls; track previewUrl; let i = $index) {
+                    <div class="file-preview-container">
+                      <img [src]="previewUrl" alt="File Preview" class="file-preview" />
+                      <div class="file-info">
+                        <p class="file-name">{{ multipleFileInput.value!.files[i].name }}</p>
+                      </div>
+                      <button mat-icon-button (click)="multipleFileInput.removeFile(i)" aria-label="Remove file">
+                        <mat-icon>close</mat-icon>
+                      </button>
+                    </div>
+                  }
+                </div>
+              }
 
             </form>
           </div>

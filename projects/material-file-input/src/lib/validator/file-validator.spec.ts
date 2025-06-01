@@ -98,4 +98,97 @@ describe('FileValidator', () => {
       expect(control.valid).toBeTruthy();
     });
   });
+
+  describe('minFileCount', () => {
+    it('should validate with file count equal to minFileCount', () => {
+      const data = new FileInput([
+        new File(['test'], 'test.txt'),
+        new File(['test'], 'test2.txt'),
+      ]);
+      const control = new FormControl(data, [FileValidator.minFileCount(2)]);
+      expect(control.value).toBe(data);
+      expect(control.valid).toBeTruthy();
+    });
+
+    it('should not validate with invalid file count', () => {
+      const data = new FileInput([new File(['test'], 'test.txt')]);
+      const control = new FormControl(data, [FileValidator.minFileCount(2)]);
+      expect(control.value).toBe(data);
+      expect(control.valid).toBeFalsy();
+    });
+
+    it('should not validate with invalid file count, with "minFileCount" error', () => {
+      const data = new FileInput([new File(['test'], 'test.txt')]);
+      const control = new FormControl(data, [FileValidator.minFileCount(2)]);
+      const errors: ValidationErrors | null = control.errors as ValidationErrors;
+      const minFileCountError: { [key: string]: any } | null = errors[
+        'minFileCount'
+      ] as { [key: string]: any };
+      expect(minFileCountError).toEqual({
+        actualCount: 1,
+        minCount: 2,
+      });
+      expect(control.hasError('minFileCount')).toBeTruthy();
+    });
+
+    it('should validate with no files', () => {
+      const control = new FormControl(undefined, [
+        FileValidator.minFileCount(2),
+      ]);
+      
+      expect(control.value).toBe(null);
+      expect(control.valid).toBeFalsy();
+      expect(control.hasError('minFileCount')).toBeTruthy();
+    });
+  });
+
+  describe('maxFileCount', () => {
+    it('should validate with file count equal to maxFileCount', () => {
+      const data = new FileInput([
+        new File(['test'], 'test.txt'),
+        new File(['test'], 'test2.txt'),
+      ]);
+      const control = new FormControl(data, [FileValidator.maxFileCount(2)]);
+      expect(control.value).toBe(data);
+      expect(control.valid).toBeTruthy();
+    });
+
+    it('should not validate with invalid file count', () => {
+      const data = new FileInput([
+        new File(['test'], 'test.txt'),
+        new File(['test'], 'test2.txt'),
+        new File(['test'], 'test3.txt'),
+      ]);
+      const control = new FormControl(data, [FileValidator.maxFileCount(2)]);
+      expect(control.value).toBe(data);
+      expect(control.valid).toBeFalsy();
+    });
+
+    it('should not validate with invalid file count, with "maxFileCount" error', () => {
+      const data = new FileInput([
+        new File(['test'], 'test.txt'),
+        new File(['test'], 'test2.txt'),
+        new File(['test'], 'test3.txt'),
+      ]);
+      const control = new FormControl(data, [FileValidator.maxFileCount(2)]);
+      const errors: ValidationErrors | null = control.errors as ValidationErrors;
+      const maxFileCountError: { [key: string]: any } | null = errors[
+        'maxFileCount'
+      ] as { [key: string]: any };
+      expect(maxFileCountError).toEqual({
+        actualCount: 3,
+        maxCount: 2,
+      });
+      expect(control.hasError('maxFileCount')).toBeTruthy();
+    });
+
+    it('should validate with no files', () => {
+      const control = new FormControl(undefined, [
+        FileValidator.maxFileCount(2),
+      ]);
+      expect(control.value).toBe(null);
+      expect(control.valid).toBeTruthy();
+      expect(control.hasError('maxFileCount')).toBeFalsy();
+    });
+  });
 });
