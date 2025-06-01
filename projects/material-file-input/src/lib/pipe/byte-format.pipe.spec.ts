@@ -12,7 +12,7 @@ describe('ByteFormatPipe', () => {
     TestBed.configureTestingModule({
       providers: [ByteFormatPipe]
     });
-    pipe = TestBed.get(ByteFormatPipe);
+    pipe = TestBed.inject(ByteFormatPipe);
   });
 
   it('should format a given value', () => {
@@ -44,7 +44,7 @@ describe('ByteFormatPipe with injection token', () => {
         { provide: NGX_MAT_FILE_INPUT_CONFIG, useValue: config }
       ]
     });
-    pipe = TestBed.get(ByteFormatPipe);
+    pipe = TestBed.inject(ByteFormatPipe);
   });
 
   it('should format a given value', () => {
