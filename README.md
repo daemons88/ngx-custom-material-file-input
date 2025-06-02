@@ -25,6 +25,7 @@ This project provides :
 * `ngx-mat-file-input` component, to use inside Angular Material `mat-form-field`
 * a `FileValidator` with `acceptedMimeTypes`, to limit the format types using the mime types
 * a `FileValidator` with `maxContentSize`, to limit the file size
+* a `FileValidator` with `minFileCount` and `maxFileCount`, to limit the loaded files
 * a `ByteFormatPipe` to format the file size in a human-readable format
 * a `previewUrls` to receive the images/file as a url to show in a preview
 
@@ -102,7 +103,7 @@ _Output:_ 100 MB
 | maxContentSize(value: `number`): `ValidatorFn`    | Limit the total file(s) size to the given value               | `{ actualSize: number, maxSize: number }`   | v1               |
 | acceptedMimeTypes(value: `string`): `ValidatorFn` | Limit the mime types valid to use given value                 | `{ validTypes: string }`                    | v18              |
 | minFileCount(value: `number`): `ValidatorFn`      | Limit the total of minimum file(s) loaded to the given value  | `{ minCount: number, actualCount: number }` | v20              |
-| maxFileCount(value: `number`): `ValidatorFn`      |  Limit the total of maximum file(s) loaded to the given value | `{ maxCount: number, actualCount: number }` | v20              |
+| maxFileCount(value: `number`): `ValidatorFn`      | Limit the total of maximum file(s) loaded to the given value  | `{ maxCount: number, actualCount: number }` | v20              |
 
 
-**Sponsor by: [MyTalentAid](https://mytalentaid.com/?lang=en)**
+**Sponsored by: [MyTalentAid](https://mytalentaid.com/?lang=en)**
