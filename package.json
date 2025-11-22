@@ -24,7 +24,6 @@
     "@angular/platform-browser": "^20.0.0",
     "@angular/platform-browser-dynamic": "^20.0.0",
     "@angular/router": "^20.0.0",
-    "ngx-custom-material-file-input": "file:dist/material-file-input/ngx-custom-material-file-input-20.0.0.tgz",
     "rxjs": "~7.5.0",
     "tslib": "^2.8.1",
     "zone.js": "~0.15.0"
