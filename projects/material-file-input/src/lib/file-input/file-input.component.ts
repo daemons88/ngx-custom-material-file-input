@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ElementRef, OnDestroy, HostBinding, Renderer2, HostListener, Optional, Self, DoCheck } from '@angular/core';
+import { Component, OnInit, Input, ElementRef, OnDestroy, HostBinding, Renderer2, HostListener, Optional, Self, DoCheck, ChangeDetectorRef } from '@angular/core';
 import { ControlValueAccessor, NgControl, NgForm, FormGroupDirective } from '@angular/forms';
 import { MatFormFieldControl } from "@angular/material/form-field";
 import { ErrorStateMatcher } from '@angular/material/core';
@@ -12,8 +12,8 @@ import { Subject } from 'rxjs/internal/Subject';
     selector: 'ngx-mat-file-input',
     templateUrl: './file-input.component.html',
     styleUrls: ['./file-input.component.css'],
+    standalone: true,
     providers: [{ provide: MatFormFieldControl, useExisting: FileInputComponent }],
-    standalone: false
 })
 export class FileInputComponent extends FileInputBase implements MatFormFieldControl<FileInput>, ControlValueAccessor, OnInit, OnDestroy, DoCheck {
   static nextId = 0;
@@ -58,6 +58,7 @@ export class FileInputComponent extends FileInputBase implements MatFormFieldCon
     if (fileInput) {
       this.writeValue(fileInput);
       this.stateChanges.next();
+      this._changeDetectorRef.detectChanges();
     }
   }
 
@@ -111,6 +112,7 @@ export class FileInputComponent extends FileInputBase implements MatFormFieldCon
   set disabled(dis: boolean | string) {
     this.setDisabledState(coerceBooleanProperty(dis));
     this.stateChanges.next();
+    this._changeDetectorRef.detectChanges();
   }
 
   get previewUrls(): string[] {
@@ -122,6 +124,7 @@ export class FileInputComponent extends FileInputBase implements MatFormFieldCon
       this._elementRef.nativeElement.querySelector('input').focus();
       this.focused = true;
       this.open();
+      this.stateChanges.next();
     }
   }
 
@@ -132,6 +135,7 @@ export class FileInputComponent extends FileInputBase implements MatFormFieldCon
     private fm: FocusMonitor,
     private _elementRef: ElementRef,
     private _renderer: Renderer2,
+    private _changeDetectorRef: ChangeDetectorRef, // Add this
     public override _defaultErrorStateMatcher: ErrorStateMatcher,
     @Optional()
     @Self()
@@ -145,8 +149,11 @@ export class FileInputComponent extends FileInputBase implements MatFormFieldCon
       this.ngControl.valueAccessor = this;
     }
     fm.monitor(_elementRef.nativeElement, true).subscribe(origin => {
+      const wasFocused = this.focused;
       this.focused = !!origin;
-      this.stateChanges.next();
+      if (wasFocused !== this.focused) {
+        this.stateChanges.next();
+      }
     });
   }
 
@@ -159,6 +166,7 @@ export class FileInputComponent extends FileInputBase implements MatFormFieldCon
 
   public writeValue(obj: FileInput | null): void {
     this._renderer.setProperty(this._elementRef.nativeElement, 'value', obj instanceof FileInput ? obj.files : null);
+    this.updatePreviewUrls();
   }
 
   public registerOnChange(fn: (_: any) => void): void {
@@ -182,6 +190,7 @@ export class FileInputComponent extends FileInputBase implements MatFormFieldCon
     this._previewUrls = [];
     this._elementRef.nativeElement.querySelector('input').value = null;
     this._onChange(this.value);
+    this.stateChanges.next();
   }
 
   @HostListener('change', ['$event'])
@@ -206,6 +215,7 @@ export class FileInputComponent extends FileInputBase implements MatFormFieldCon
   
     this._onChange(this.value);
     this.updatePreviewUrls();
+    this.stateChanges.next();
   }
 
   private updatePreviewUrls() {
@@ -224,6 +234,7 @@ export class FileInputComponent extends FileInputBase implements MatFormFieldCon
     } else {
       this._previewUrls = [];
     }
+    this._changeDetectorRef.detectChanges();
   }
 
   private revokeObjectURLs() {
@@ -239,12 +250,14 @@ export class FileInputComponent extends FileInputBase implements MatFormFieldCon
     this.value = new FileInput(updatedFiles);
     this._onChange(this.value);
     this.updatePreviewUrls();
+    this.stateChanges.next();
   }
 
   @HostListener('focusout')
   public blur() {
     this.focused = false;
     this._onTouched();
+    this.stateChanges.next();
   }
 
   public setDisabledState(isDisabled: boolean): void {

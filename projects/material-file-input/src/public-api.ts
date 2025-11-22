@@ -2,9 +2,6 @@
  * Public API Surface of material-file-input
  */
 
-// Module
-export { MaterialFileInputModule }  from './lib/material-file-input.module';
-
 // Model & Constant
 export { NGX_MAT_FILE_INPUT_CONFIG } from './lib/models/file-input-config.model';
 export { FileInput } from './lib/models/file-input.model';

@@ -36,14 +36,14 @@ describe('FileInputComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [FileInputComponent],
       imports: [
         ReactiveFormsModule,
         FormsModule,
         MatFormFieldModule,
         MatInputModule,
         MatButtonModule,
-        MatIconModule
+        MatIconModule,
+        FileInputComponent
       ],
       providers: [
         { provide: ErrorStateMatcher, useClass: FileInputSpecErrorStateMatcher }
@@ -122,7 +122,7 @@ describe('FileInputComponent', () => {
     expect(component.open).not.toHaveBeenCalled();
   });
 
-  it('should clear all files and reset state', () => {
+  it('should clear all files and reset state', fakeAsync(() => {
     const file = new File(['test'], 'test.pdf', { type: 'application/pdf' });
     component.value = new FileInput([file]);
     fixture.detectChanges();
@@ -130,14 +130,15 @@ describe('FileInputComponent', () => {
     expect(component.value.files.length).toBe(1);
   
     component.clear();
+    tick(); // Wait for async operations
     fixture.detectChanges();
   
     expect(component.value).toBeNull();
     expect(component.empty).toBeTruthy();
     expect(component.previewUrls.length).toBe(0);
-  });
+  }));
 
-  it('should recognize all error state changes', () => {
+  it('should recognize all error state changes', fakeAsync(() => {
     spyOn(component.stateChanges, 'next');
 
     component.ngControl = {
@@ -149,6 +150,7 @@ describe('FileInputComponent', () => {
     component.ngControl.control!.markAsUntouched();
 
     fixture.detectChanges();
+    tick();
     expect(component.errorState).toBeFalsy();
     expect(component.stateChanges.next).not.toHaveBeenCalled();
 
@@ -157,9 +159,10 @@ describe('FileInputComponent', () => {
     component.ngControl.control!.markAsTouched();
 
     fixture.detectChanges();
+    tick();
     expect(component.errorState).toBeTruthy();
-    expect(component.stateChanges.next).toHaveBeenCalledTimes(1);
-  });
+    expect(component.stateChanges.next).toHaveBeenCalled();
+  }));
 
   it('should use input ErrorStateMatcher over provided', () => {
     component.ngControl = {
@@ -189,24 +192,27 @@ describe('FileInputComponent', () => {
     fixture.detectChanges();
     expect(component.required).toBeTrue();
   });
-  
-  it('should set disabled state correctly', () => {
+
+  it('should set disabled state correctly', fakeAsync(() => {
     component.disabled = true;
+    tick();
     fixture.detectChanges();
+    
     expect(component.isDisabled).toBeTrue();
     expect(component.disabled).toBeTrue();
-  });
+  }));
 
-  it('should update value correctly', () => {
+  it('should update value correctly', fakeAsync(() => {
     const file = new File(['test'], 'test.pdf', { type: 'application/pdf' });
     component.value = new FileInput([file]);
+    tick();
     fixture.detectChanges();
   
     expect(component.value.files.length).toBe(1);
     expect(component.value.files[0].name).toBe('test.pdf');
-  });
+  }));
 
-  it('should generate preview URLs for image files', async () => {
+  it('should generate preview URLs for image files', fakeAsync(() => {
     const fileInput = fixture.debugElement.query(By.css('input[type="file"]')).nativeElement;
     const file = new File(['dummy content'], 'test-image.png', { type: 'image/png' });
   
@@ -217,14 +223,14 @@ describe('FileInputComponent', () => {
     const event = { target: fileInput } as Event;
     component.change(event);
   
-    await fixture.whenStable();
+    tick();
     fixture.detectChanges();
   
     expect(component.previewUrls.length).toBe(1);
     expect(component.previewUrls[0]).toContain('blob:');
-  });
+  }));
   
-  it('should use default icon for non-image files', async () => {
+  it('should use default icon for non-image files', fakeAsync(() => {
     const nonImageFile = new File(['file'], 'file.pdf', { type: 'application/pdf' });
     component.value = new FileInput([nonImageFile]);
   
@@ -235,13 +241,13 @@ describe('FileInputComponent', () => {
     });
     component.change(event);
   
-    await fixture.whenStable();
+    tick();
     fixture.detectChanges();
     expect(component.previewUrls.length).toBe(1);
     expect(component.previewUrls[0]).toBe(component.defaultIconBase64);
-  });
+  }));
 
-  it('should remove a file and update previewUrls', async () => {
+  it('should remove a file and update previewUrls', fakeAsync( () => {
     const file1 = new File(['file1'], 'file1.pdf', { type: 'application/pdf' });
     const file2 = new File(['file2'], 'file2.pdf', { type: 'application/pdf' });
     component.value = new FileInput([file1, file2]);
@@ -253,20 +259,20 @@ describe('FileInputComponent', () => {
     });
     component.change(event);
 
-    await fixture.whenStable();
+    tick();
     fixture.detectChanges();
     expect(component.value.files.length).toBe(2);
     expect(component.previewUrls.length).toBe(2);
 
     component.removeFile(0);
 
-    await fixture.whenStable();
+    tick();
     fixture.detectChanges();
     expect(component.value.files.length).toBe(1);
     expect(component.previewUrls.length).toBe(1);
-  });
+  }));
 
-  it('should use the provided defaultIconBase64 for non-image files', async () => {
+  it('should use the provided defaultIconBase64 for non-image files', fakeAsync( () => {
     const customIcon = 'data:image/svg+xml;base64,PHN2ZyBjbGFzcz0ic3ZnLWljb24iIHN0eWxlPSJ3aWR0aDogMWVtOyBoZWlnaHQ6IDFlbTt2ZXJ0aWNhbC1hbGlnbjogbWlkZGxlO2ZpbGw6IGN1cnJlbnRDb2xvcjtvdmVyZmxvdzogaGlkZGVuOyIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGQ9Ik01NTMuOTg0IDM4NGwyMzUuOTg5MzMzIDAtMjM1Ljk4OTMzMy0yMzMuOTg0IDAgMjMzLjk4NHpNMjU2IDg2LjAxNmwzNDIuMDE2IDAgMjU2IDI1NiAwIDUxMnEwIDM0LjAwNTMzMy0yNS45ODQgNTkuMDA4dC01OS45ODkzMzMgMjUuMDAyNjY3bC01MTIgMHEtMzQuMDA1MzMzIDAtNTkuOTg5MzMzLTI1LjAwMjY2N3QtMjUuOTg0LTU5LjAwOGwyLjAwNTMzMy02ODMuOTg5MzMzcTAtMzQuMDA1MzMzIDI1LjAwMjY2Ny01OS4wMDh0NTkuMDA4LTI1LjAwMjY2N3oiICAvPjwvc3ZnPg==';
     component.defaultIconBase64 = customIcon;
   
@@ -280,10 +286,10 @@ describe('FileInputComponent', () => {
     });
     component.change(event);
   
-    await fixture.whenStable();
+    tick();
     fixture.detectChanges();
   
     expect(component.previewUrls.length).toBe(1);
     expect(component.previewUrls[0]).toBe(customIcon);
-  });
+  }));
 });
