@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ElementRef, OnDestroy, HostBinding, Renderer2, HostListener, Optional, Self, DoCheck, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, Input, ElementRef, OnDestroy, HostBinding, Renderer2, HostListener, Optional, Self, DoCheck } from '@angular/core';
 import { ControlValueAccessor, NgControl, NgForm, FormGroupDirective } from '@angular/forms';
 import { MatFormFieldControl } from "@angular/material/form-field";
 import { ErrorStateMatcher } from '@angular/material/core';
@@ -12,8 +12,8 @@ import { Subject } from 'rxjs/internal/Subject';
     selector: 'ngx-mat-file-input',
     templateUrl: './file-input.component.html',
     styleUrls: ['./file-input.component.css'],
-    standalone: true,
     providers: [{ provide: MatFormFieldControl, useExisting: FileInputComponent }],
+    standalone: true
 })
 export class FileInputComponent extends FileInputBase implements MatFormFieldControl<FileInput>, ControlValueAccessor, OnInit, OnDestroy, DoCheck {
   static nextId = 0;
@@ -28,11 +28,14 @@ export class FileInputComponent extends FileInputBase implements MatFormFieldCon
   private _multiple = false;
   private _previewUrls: string[] = [];
   private _objectURLs: string[] = [];
+  private _internalValue: FileInput | null = null; 
 
   @Input() valuePlaceholder: string;
   @Input() accept: string | null = null;
   @Input() errorStateMatcher: ErrorStateMatcher;
   @Input() defaultIconBase64: string = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjI0Ij48cGF0aCBkPSJNMCAwaDI0djI0SDBWMHoiIGZpbGw9Im5vbmUiLz48cGF0aCBkPSJNMTUgMkg2Yy0xLjEgMC0yIC45LTIgMnYxNmMwIDEuMS45IDIgMiAyaDEyYzEuMSAwIDItLjkgMi0yVjdsLTUtNXpNNiAyMFY0aDh2NGg0djEySDZ6bTEwLTEwdjVjMCAyLjIxLTEuNzkgNC00IDRzLTQtMS43OS00LTRWOC41YzAtMS40NyAxLjI2LTIuNjQgMi43Ni0yLjQ5IDEuMy4xMyAyLjI0IDEuMzIgMi4yNCAyLjYzVjE1aC0yVjguNWMwLS4yOC0uMjItLjUtLjUtLjVzLS41LjIyLS41LjVWMTVjMCAxLjEuOSAyIDIgMnMyLS45IDItMnYtNWgyeiIvPjwvc3ZnPg==';
+
+  public empty = true;
 
   override get errorState(): boolean {
     const control = this.ngControl?.control || null;
@@ -51,15 +54,15 @@ export class FileInputComponent extends FileInputBase implements MatFormFieldCon
 
   @Input()
   get value(): FileInput | null {
-    return this.empty ? null : new FileInput(this._elementRef.nativeElement.value || []);
+    return this.empty ? null : this._internalValue;
   }
-
   set value(fileInput: FileInput | null) {
-    if (fileInput) {
-      this.writeValue(fileInput);
-      this.stateChanges.next();
-      this._changeDetectorRef.detectChanges();
-    }
+    this._internalValue = fileInput;
+    this.empty = !this._internalValue || !this._internalValue.files.length;
+
+    this.stateChanges.next();
+    this._onChange(this._internalValue);
+    this.updatePreviewUrls(); 
   }
 
   @Input()
@@ -80,18 +83,6 @@ export class FileInputComponent extends FileInputBase implements MatFormFieldCon
     this.stateChanges.next();
   }
 
-  /**
-   * Whether the current input has files
-   */
-  get empty() {
-    return !this._elementRef.nativeElement.value || this._elementRef.nativeElement.value.length === 0;
-  }
-
-  @HostBinding('class.mat-form-field-should-float')
-  get shouldLabelFloat() {
-    return this.focused || !this.empty || this.valuePlaceholder !== undefined;
-  }
-
   @Input()
   get required(): boolean {
     return this._required;
@@ -99,6 +90,11 @@ export class FileInputComponent extends FileInputBase implements MatFormFieldCon
   set required(req: boolean | string) {
     this._required = coerceBooleanProperty(req);
     this.stateChanges.next();
+  }
+
+  @HostBinding('class.mat-form-field-should-float')
+  get shouldLabelFloat() {
+    return this.focused || !this.empty || this.valuePlaceholder !== undefined;
   }
 
   @HostBinding('class.file-input-disabled')
@@ -110,9 +106,9 @@ export class FileInputComponent extends FileInputBase implements MatFormFieldCon
     return this._elementRef.nativeElement.disabled;
   }
   set disabled(dis: boolean | string) {
-    this.setDisabledState(coerceBooleanProperty(dis));
+    const isDisabled = coerceBooleanProperty(dis);
+    this.setDisabledState(isDisabled);
     this.stateChanges.next();
-    this._changeDetectorRef.detectChanges();
   }
 
   get previewUrls(): string[] {
@@ -124,18 +120,13 @@ export class FileInputComponent extends FileInputBase implements MatFormFieldCon
       this._elementRef.nativeElement.querySelector('input').focus();
       this.focused = true;
       this.open();
-      this.stateChanges.next();
     }
   }
 
-  /**
-   * @see https://angular.io/api/forms/ControlValueAccessor
-   */
   constructor(
     private fm: FocusMonitor,
     private _elementRef: ElementRef,
     private _renderer: Renderer2,
-    private _changeDetectorRef: ChangeDetectorRef, // Add this
     public override _defaultErrorStateMatcher: ErrorStateMatcher,
     @Optional()
     @Self()
@@ -143,17 +134,15 @@ export class FileInputComponent extends FileInputBase implements MatFormFieldCon
     @Optional() public override _parentForm: NgForm,
     @Optional() public override _parentFormGroup: FormGroupDirective,
   ) {
-    super(_defaultErrorStateMatcher, _parentForm, _parentFormGroup, ngControl, new Subject<void>())
+    super(_defaultErrorStateMatcher, _parentForm, _parentFormGroup, ngControl, new Subject<void>());
 
     if (this.ngControl != null) {
       this.ngControl.valueAccessor = this;
     }
+
     fm.monitor(_elementRef.nativeElement, true).subscribe(origin => {
-      const wasFocused = this.focused;
       this.focused = !!origin;
-      if (wasFocused !== this.focused) {
-        this.stateChanges.next();
-      }
+      this.stateChanges.next();
     });
   }
 
@@ -161,13 +150,18 @@ export class FileInputComponent extends FileInputBase implements MatFormFieldCon
   private _onTouched = () => {};
 
   get fileNames() {
-    return this.value ? this.value.fileNames : this.valuePlaceholder;
+    return this._internalValue ? this._internalValue.fileNames : this.valuePlaceholder;
   }
 
   public writeValue(obj: FileInput | null): void {
-    this._renderer.setProperty(this._elementRef.nativeElement, 'value', obj instanceof FileInput ? obj.files : null);
-    this.updatePreviewUrls();
+  this.value = obj; 
+  if (!obj || obj.files.length === 0) {
+    const inputElement = this._elementRef.nativeElement.querySelector('input');
+    if (inputElement) {
+      inputElement.value = null;
+    }
   }
+}
 
   public registerOnChange(fn: (_: any) => void): void {
     this._onChange = fn;
@@ -177,53 +171,37 @@ export class FileInputComponent extends FileInputBase implements MatFormFieldCon
     this._onTouched = fn;
   }
 
-  /**
-   * Remove all files from the file input component
-   * @param [event] optional event that may have triggered the clear action
-   */
   public clear(event?: Event) {
     if (event) {
       event.preventDefault();
       event.stopPropagation();
     }
     this.value = new FileInput([]);
-    this._previewUrls = [];
-    this._elementRef.nativeElement.querySelector('input').value = null;
-    this._onChange(this.value);
-    this.stateChanges.next();
+
+    const inputElement = this._elementRef.nativeElement.querySelector('input');
+    if (inputElement) {
+      inputElement.value = null;
+    }
   }
 
   @HostListener('change', ['$event'])
   change(event: Event) {
     const fileList: FileList | null = (<HTMLInputElement>event.target).files;
-  
     if (!fileList) return;
-  
-    if (this.multiple) {
-      const existingFiles = this.value?.files || [];
-      const newFiles: File[] = [];
-  
-      for (let i = 0; i < fileList.length; i++) {
-        newFiles.push(fileList[i]);
-      }
-  
-      const updatedFiles = [...existingFiles, ...newFiles];
-      this.value = new FileInput(updatedFiles);
-    } else {
-      this.value = new FileInput(Array.from(fileList));
-    }
-  
-    this._onChange(this.value);
-    this.updatePreviewUrls();
-    this.stateChanges.next();
+
+    const files = this.multiple ? [...(this._internalValue?.files || []), ...Array.from(fileList)] : Array.from(fileList);
+    this.value = new FileInput(files);
+
+    (<HTMLInputElement>event.target).value = '';
   }
 
   private updatePreviewUrls() {
+    this._objectURLs.forEach(url => URL.revokeObjectURL(url));
     this._objectURLs = [];
-    if (this.value?.files?.length) {
-      this._previewUrls = this.value.files.map((file) => {
-        const isImage = file.type.startsWith('image/');
-        if (isImage) {
+
+    if (this._internalValue?.files?.length) {
+      this._previewUrls = this._internalValue.files.map((file) => {
+        if (file.type.startsWith('image/')) {
           const url = URL.createObjectURL(file);
           this._objectURLs.push(url);
           return url;
@@ -234,30 +212,20 @@ export class FileInputComponent extends FileInputBase implements MatFormFieldCon
     } else {
       this._previewUrls = [];
     }
-    this._changeDetectorRef.detectChanges();
-  }
-
-  private revokeObjectURLs() {
-    this._objectURLs.forEach((url) => URL.revokeObjectURL(url));
-    this._objectURLs = [];
   }
 
   removeFile(index: number) {
-    if (!this.value?.files?.length) return;
+    if (!this._internalValue?.files?.length) return;
 
-    const updatedFiles = [...this.value.files];
+    const updatedFiles = [...this._internalValue.files];
     updatedFiles.splice(index, 1);
     this.value = new FileInput(updatedFiles);
-    this._onChange(this.value);
-    this.updatePreviewUrls();
-    this.stateChanges.next();
   }
 
   @HostListener('focusout')
   public blur() {
     this.focused = false;
     this._onTouched();
-    this.stateChanges.next();
   }
 
   public setDisabledState(isDisabled: boolean): void {
@@ -275,16 +243,14 @@ export class FileInputComponent extends FileInputBase implements MatFormFieldCon
   }
 
   ngOnDestroy() {
-    this.revokeObjectURLs();
+    this._objectURLs.forEach(url => URL.revokeObjectURL(url));
+    this._objectURLs = [];
     this.stateChanges.complete();
     this.fm.stopMonitoring(this._elementRef.nativeElement);
   }
 
   ngDoCheck(): void {
     if (this.ngControl) {
-      // We need to re-evaluate this on every change detection cycle, because there are some
-      // error triggers that we can't subscribe to (e.g. parent form submissions). This means
-      // that whatever logic is in here has to be super lean or we risk destroying the performance.
       this.updateErrorState();
     }
   }

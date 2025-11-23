@@ -12,6 +12,7 @@ describe('ByteFormatPipe', () => {
     TestBed.configureTestingModule({
       providers: [ByteFormatPipe]
     });
+
     pipe = TestBed.inject(ByteFormatPipe);
   });
 
