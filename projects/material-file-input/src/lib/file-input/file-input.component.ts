@@ -1,21 +1,48 @@
-import { Component, OnInit, Input, ElementRef, OnDestroy, HostBinding, Renderer2, HostListener, Optional, Self, DoCheck } from '@angular/core';
-import { ControlValueAccessor, NgControl, NgForm, FormGroupDirective } from '@angular/forms';
-import { MatFormFieldControl } from "@angular/material/form-field";
+import {
+  Component,
+  OnInit,
+  Input,
+  ElementRef,
+  OnDestroy,
+  HostBinding,
+  Renderer2,
+  HostListener,
+  Optional,
+  Self,
+  DoCheck,
+} from '@angular/core';
+import {
+  ControlValueAccessor,
+  NgControl,
+  NgForm,
+  FormGroupDirective,
+} from '@angular/forms';
+import { MatFormFieldControl } from '@angular/material/form-field';
 import { ErrorStateMatcher } from '@angular/material/core';
-import { coerceBooleanProperty } from "@angular/cdk/coercion";
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { FocusMonitor } from '@angular/cdk/a11y';
 import { FileInputBase } from './file-input.base';
 import { FileInput } from '../models/file-input.model';
 import { Subject } from 'rxjs/internal/Subject';
 
 @Component({
-    selector: 'ngx-mat-file-input',
-    templateUrl: './file-input.component.html',
-    styleUrls: ['./file-input.component.css'],
-    providers: [{ provide: MatFormFieldControl, useExisting: FileInputComponent }],
-    standalone: true
+  selector: 'ngx-mat-file-input',
+  templateUrl: './file-input.component.html',
+  styleUrls: ['./file-input.component.css'],
+  providers: [
+    { provide: MatFormFieldControl, useExisting: FileInputComponent },
+  ],
+  standalone: true,
 })
-export class FileInputComponent extends FileInputBase implements MatFormFieldControl<FileInput>, ControlValueAccessor, OnInit, OnDestroy, DoCheck {
+export class FileInputComponent
+  extends FileInputBase
+  implements
+    MatFormFieldControl<FileInput>,
+    ControlValueAccessor,
+    OnInit,
+    OnDestroy,
+    DoCheck
+{
   static nextId = 0;
 
   focused = false;
@@ -26,14 +53,16 @@ export class FileInputComponent extends FileInputBase implements MatFormFieldCon
   private _placeholder: string;
   private _required = false;
   private _multiple = false;
+  private _checkDuplicates = false;
   private _previewUrls: string[] = [];
   private _objectURLs: string[] = [];
-  private _internalValue: FileInput | null = null; 
+  private _internalValue: FileInput | null = null;
 
   @Input() valuePlaceholder: string;
   @Input() accept: string | null = null;
   @Input() errorStateMatcher: ErrorStateMatcher;
-  @Input() defaultIconBase64: string = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjI0Ij48cGF0aCBkPSJNMCAwaDI0djI0SDBWMHoiIGZpbGw9Im5vbmUiLz48cGF0aCBkPSJNMTUgMkg2Yy0xLjEgMC0yIC45LTIgMnYxNmMwIDEuMS45IDIgMiAyaDEyYzEuMSAwIDItLjkgMi0yVjdsLTUtNXpNNiAyMFY0aDh2NGg0djEySDZ6bTEwLTEwdjVjMCAyLjIxLTEuNzkgNC00IDRzLTQtMS43OS00LTRWOC41YzAtMS40NyAxLjI2LTIuNjQgMi43Ni0yLjQ5IDEuMy4xMyAyLjI0IDEuMzIgMi4yNCAyLjYzVjE1aC0yVjguNWMwLS4yOC0uMjItLjUtLjUtLjVzLS41LjIyLS41LjVWMTVjMCAxLjEuOSAyIDIgMnMyLS45IDItMnYtNWgyeiIvPjwvc3ZnPg==';
+  @Input() defaultIconBase64: string =
+    'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjI0Ij48cGF0aCBkPSJNMCAwaDI0djI0SDBWMHoiIGZpbGw9Im5vbmUiLz48cGF0aCBkPSJNMTUgMkg2Yy0xLjEgMC0yIC45LTIgMnYxNmMwIDEuMS45IDIgMiAyaDEyYzEuMSAwIDItLjkgMi0yVjdsLTUtNXpNNiAyMFY0aDh2NGg0djEySDZ6bTEwLTEwdjVjMCAyLjIxLTEuNzkgNC00IDRzLTQtMS43OS00LTRWOC41YzAtMS40NyAxLjI2LTIuNjQgMi43Ni0yLjQ5IDEuMy4xMyAyLjI0IDEuMzIgMi4yNCAyLjYzVjE1aC0yVjguNWMwLS4yOC0uMjItLjUtLjUtLjVzLS41LjIyLS41LjVWMTVjMCAxLjEuOSAyIDIgMnMyLS45IDItMnYtNWgyeiIvPjwvc3ZnPg==';
 
   public empty = true;
 
@@ -62,7 +91,7 @@ export class FileInputComponent extends FileInputBase implements MatFormFieldCon
 
     this.stateChanges.next();
     this._onChange(this._internalValue);
-    this.updatePreviewUrls(); 
+    this.updatePreviewUrls();
   }
 
   @Input()
@@ -72,6 +101,14 @@ export class FileInputComponent extends FileInputBase implements MatFormFieldCon
   set multiple(value: boolean | string) {
     this._multiple = coerceBooleanProperty(value);
     this.stateChanges.next();
+  }
+
+  @Input()
+  get checkDuplicates(): boolean {
+    return this._checkDuplicates;
+  }
+  set checkDuplicates(value: boolean | string) {
+    this._checkDuplicates = coerceBooleanProperty(value);
   }
 
   @Input()
@@ -115,12 +152,13 @@ export class FileInputComponent extends FileInputBase implements MatFormFieldCon
     return this._previewUrls;
   }
 
-  public onContainerClick(event: MouseEvent) {
-    if ((event.target as Element).tagName.toLowerCase() !== 'input' && !this.disabled) {
-      this._elementRef.nativeElement.querySelector('input').focus();
-      this.focused = true;
-      this.open();
-    }
+  private _onChange = (_: any) => {};
+  private _onTouched = () => {};
+
+  get fileNames() {
+    return this._internalValue
+      ? this._internalValue.fileNames
+      : this.valuePlaceholder;
   }
 
   constructor(
@@ -132,36 +170,47 @@ export class FileInputComponent extends FileInputBase implements MatFormFieldCon
     @Self()
     public override ngControl: NgControl,
     @Optional() public override _parentForm: NgForm,
-    @Optional() public override _parentFormGroup: FormGroupDirective,
+    @Optional() public override _parentFormGroup: FormGroupDirective
   ) {
-    super(_defaultErrorStateMatcher, _parentForm, _parentFormGroup, ngControl, new Subject<void>());
+    super(
+      _defaultErrorStateMatcher,
+      _parentForm,
+      _parentFormGroup,
+      ngControl,
+      new Subject<void>()
+    );
 
     if (this.ngControl != null) {
       this.ngControl.valueAccessor = this;
     }
 
-    fm.monitor(_elementRef.nativeElement, true).subscribe(origin => {
+    fm.monitor(_elementRef.nativeElement, true).subscribe((origin) => {
       this.focused = !!origin;
       this.stateChanges.next();
     });
   }
 
-  private _onChange = (_: any) => {};
-  private _onTouched = () => {};
-
-  get fileNames() {
-    return this._internalValue ? this._internalValue.fileNames : this.valuePlaceholder;
+  public onContainerClick(event: MouseEvent) {
+    if (
+      (event.target as Element).tagName.toLowerCase() !== 'input' &&
+      !this.disabled
+    ) {
+      this._elementRef.nativeElement.querySelector('input').focus();
+      this.focused = true;
+      this.open();
+    }
   }
 
   public writeValue(obj: FileInput | null): void {
-  this.value = obj; 
-  if (!obj || obj.files.length === 0) {
-    const inputElement = this._elementRef.nativeElement.querySelector('input');
-    if (inputElement) {
-      inputElement.value = null;
+    this.value = obj;
+    if (!obj || obj.files.length === 0) {
+      const inputElement =
+        this._elementRef.nativeElement.querySelector('input');
+      if (inputElement) {
+        inputElement.value = null;
+      }
     }
   }
-}
 
   public registerOnChange(fn: (_: any) => void): void {
     this._onChange = fn;
@@ -189,14 +238,41 @@ export class FileInputComponent extends FileInputBase implements MatFormFieldCon
     const fileList: FileList | null = (<HTMLInputElement>event.target).files;
     if (!fileList) return;
 
-    const files = this.multiple ? [...(this._internalValue?.files || []), ...Array.from(fileList)] : Array.from(fileList);
-    this.value = new FileInput(files);
+    let newFiles = Array.from(fileList);
+    let currentFiles = this._internalValue?.files || [];
+    let filesToSet: File[] = [];
 
+    if (this.multiple) {
+      filesToSet = [...currentFiles];
+
+      for (const newFile of newFiles) {
+        let isDuplicate = false;
+
+        if (this.checkDuplicates) {
+          isDuplicate = currentFiles.some(
+            (existingFile) =>
+              existingFile.name === newFile.name &&
+              existingFile.size === newFile.size &&
+              existingFile.lastModified === newFile.lastModified
+          );
+        }
+
+        if (!isDuplicate) {
+          filesToSet.push(newFile);
+        } else {
+          console.warn(`Duplicate file skipped: ${newFile.name}`);
+        }
+      }
+    } else {
+      filesToSet = newFiles;
+    }
+
+    this.value = new FileInput(filesToSet);
     (<HTMLInputElement>event.target).value = '';
   }
 
   private updatePreviewUrls() {
-    this._objectURLs.forEach(url => URL.revokeObjectURL(url));
+    this._objectURLs.forEach((url) => URL.revokeObjectURL(url));
     this._objectURLs = [];
 
     if (this._internalValue?.files?.length) {
@@ -229,7 +305,11 @@ export class FileInputComponent extends FileInputBase implements MatFormFieldCon
   }
 
   public setDisabledState(isDisabled: boolean): void {
-    this._renderer.setProperty(this._elementRef.nativeElement, 'disabled', isDisabled);
+    this._renderer.setProperty(
+      this._elementRef.nativeElement,
+      'disabled',
+      isDisabled
+    );
   }
 
   public open() {
@@ -243,7 +323,7 @@ export class FileInputComponent extends FileInputBase implements MatFormFieldCon
   }
 
   ngOnDestroy() {
-    this._objectURLs.forEach(url => URL.revokeObjectURL(url));
+    this._objectURLs.forEach((url) => URL.revokeObjectURL(url));
     this._objectURLs = [];
     this.stateChanges.complete();
     this.fm.stopMonitoring(this._elementRef.nativeElement);

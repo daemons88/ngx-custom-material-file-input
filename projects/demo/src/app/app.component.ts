@@ -1,25 +1,34 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { FileInputComponent, FileValidator, ByteFormatPipe } from 'ngx-custom-material-file-input';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+  ReactiveFormsModule,
+} from '@angular/forms';
+import {
+  FileInputComponent,
+  FileValidator,
+  ByteFormatPipe,
+} from 'ngx-custom-material-file-input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 
 @Component({
-    selector: 'app-root',
-    templateUrl: './app.component.html',
-    styleUrls: ['./app.component.css'],
-    standalone: true,
-    imports: [
-      ReactiveFormsModule,
-      FileInputComponent,
-      MatFormFieldModule,
-      ByteFormatPipe,
-      MatIconModule,
-      MatButtonModule,
-      MatInputModule
-    ]
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css'],
+  standalone: true,
+  imports: [
+    ReactiveFormsModule,
+    FileInputComponent,
+    MatFormFieldModule,
+    ByteFormatPipe,
+    MatIconModule,
+    MatButtonModule,
+    MatInputModule,
+  ],
 })
 export class AppComponent {
   private readonly validFileTypes = ['image/jpeg', 'image/png'];
@@ -37,16 +46,16 @@ export class AppComponent {
         [
           Validators.required,
           FileValidator.maxContentSize(this.maxSizeBytes),
-          FileValidator.acceptedMimeTypes(this.validFileTypes)
+          FileValidator.acceptedMimeTypes(this.validFileTypes),
         ],
       ],
       multiplefile: [
         '',
         [
           FileValidator.minFileCount(this.minFiles),
-          FileValidator.maxFileCount(this.maxFiles)
-        ]
-      ]
+          FileValidator.maxFileCount(this.maxFiles),
+        ],
+      ],
     });
   }
 
@@ -56,5 +65,9 @@ export class AppComponent {
 
   get multiplefile() {
     return this.demoForm.get('multiplefile');
+  }
+
+  public trackFile(_index: number, file: File) {
+    return file.name + file.size + file.lastModified;
   }
 }

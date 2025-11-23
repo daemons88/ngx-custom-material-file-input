@@ -9,7 +9,5 @@ if (environment.production) {
 }
 
 bootstrapApplication(AppComponent, {
-  providers: [
-    provideZoneChangeDetection({ eventCoalescing: true }),
-  ]
-}).catch(err => console.error(err));
+  providers: [provideZoneChangeDetection({ eventCoalescing: true })],
+}).catch((err) => console.error(err));

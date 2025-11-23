@@ -120,7 +120,8 @@ describe('FileValidator', () => {
     it('should not validate with invalid file count, with "minFileCount" error', () => {
       const data = new FileInput([new File(['test'], 'test.txt')]);
       const control = new FormControl(data, [FileValidator.minFileCount(2)]);
-      const errors: ValidationErrors | null = control.errors as ValidationErrors;
+      const errors: ValidationErrors | null =
+        control.errors as ValidationErrors;
       const minFileCountError: { [key: string]: any } | null = errors[
         'minFileCount'
       ] as { [key: string]: any };
@@ -135,7 +136,7 @@ describe('FileValidator', () => {
       const control = new FormControl(undefined, [
         FileValidator.minFileCount(2),
       ]);
-      
+
       expect(control.value).toBe(null);
       expect(control.valid).toBeFalsy();
       expect(control.hasError('minFileCount')).toBeTruthy();
@@ -171,7 +172,8 @@ describe('FileValidator', () => {
         new File(['test'], 'test3.txt'),
       ]);
       const control = new FormControl(data, [FileValidator.maxFileCount(2)]);
-      const errors: ValidationErrors | null = control.errors as ValidationErrors;
+      const errors: ValidationErrors | null =
+        control.errors as ValidationErrors;
       const maxFileCountError: { [key: string]: any } | null = errors[
         'maxFileCount'
       ] as { [key: string]: any };

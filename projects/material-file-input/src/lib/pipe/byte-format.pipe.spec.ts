@@ -1,6 +1,6 @@
 import {
   FileInputConfig,
-  NGX_MAT_FILE_INPUT_CONFIG
+  NGX_MAT_FILE_INPUT_CONFIG,
 } from './../models/file-input-config.model';
 import { ByteFormatPipe } from './byte-format.pipe';
 import { TestBed } from '@angular/core/testing';
@@ -10,7 +10,7 @@ describe('ByteFormatPipe', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [ByteFormatPipe]
+      providers: [ByteFormatPipe],
     });
 
     pipe = TestBed.inject(ByteFormatPipe);
@@ -35,15 +35,15 @@ describe('ByteFormatPipe', () => {
 describe('ByteFormatPipe with injection token', () => {
   let pipe: ByteFormatPipe;
   const config: FileInputConfig = {
-    sizeUnit: 'Octet'
+    sizeUnit: 'Octet',
   };
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
         ByteFormatPipe,
-        { provide: NGX_MAT_FILE_INPUT_CONFIG, useValue: config }
-      ]
+        { provide: NGX_MAT_FILE_INPUT_CONFIG, useValue: config },
+      ],
     });
     pipe = TestBed.inject(ByteFormatPipe);
   });

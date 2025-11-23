@@ -39,17 +39,21 @@ export class FileValidator {
    */
   static acceptedMimeTypes(acceptedMimeTypes: string[]): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
-      const files: File[] = control.value ? (control.value as FileInput).files : [];
-      const invalidFiles: File[] = files.filter(file => !acceptedMimeTypes.includes(file.type));
-      
+      const files: File[] = control.value
+        ? (control.value as FileInput).files
+        : [];
+      const invalidFiles: File[] = files.filter(
+        (file) => !acceptedMimeTypes.includes(file.type)
+      );
+
       if (invalidFiles.length > 0) {
         return {
           acceptedMimeTypes: {
-            validTypes: acceptedMimeTypes
-          }
+            validTypes: acceptedMimeTypes,
+          },
         };
       }
-      
+
       return null;
     };
   }
@@ -66,8 +70,8 @@ export class FileValidator {
         return {
           minFileCount: {
             minCount: minCount,
-            actualCount: 0
-          }
+            actualCount: 0,
+          },
         };
       }
 
@@ -77,8 +81,8 @@ export class FileValidator {
         return {
           minFileCount: {
             minCount: minCount,
-            actualCount: files.length
-          }
+            actualCount: files.length,
+          },
         };
       }
 
@@ -98,14 +102,16 @@ export class FileValidator {
         return null;
       }
 
-      const files: File[] = control.value ? (control.value as FileInput).files : [];
+      const files: File[] = control.value
+        ? (control.value as FileInput).files
+        : [];
 
       if (files && files.length > maxCount) {
         return {
           maxFileCount: {
             maxCount: maxCount,
-            actualCount: files.length
-          }
+            actualCount: files.length,
+          },
         };
       }
 
