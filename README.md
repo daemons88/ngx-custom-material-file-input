@@ -7,7 +7,7 @@
 This project is a copy of [ngx-material-file-input](https://github.com/merlosy/ngx-material-file-input), this was made from angular 14 as a new project, only what was necessary was added and is already updated.
 
 | Library Version | Angular Version |
-|-----------------|-----------------|
+| --------------- | --------------- |
 | 1.0.0           | 14.0.0          |
 | 2.0.0           | 15.0.0          |
 | 3.0.0           | 16.0.0          |
@@ -16,21 +16,23 @@ This project is a copy of [ngx-material-file-input](https://github.com/merlosy/n
 
 From now on, the package version will be the same as the Angular version so I don't have to update the table all the time.
 
-- Latest version is using **Angular 20**
+- Latest version is using **Angular 21**
+
+From Angular 21 onwards, it is only supported as a **standalone component**.
 
 # material-file-input
 
 This project provides :
 
-* `ngx-mat-file-input` component, to use inside Angular Material `mat-form-field`
-* a `FileValidator` with `acceptedMimeTypes`, to limit the format types using the mime types
-* a `FileValidator` with `maxContentSize`, to limit the file size
-* a `FileValidator` with `minFileCount` and `maxFileCount`, to limit the loaded files
-* a `ByteFormatPipe` to format the file size in a human-readable format
-* a `previewUrls` to receive the images/file as a url to show in a preview
+- `ngx-mat-file-input` component, to use inside Angular Material `mat-form-field`
+- a `FileValidator` with `acceptedMimeTypes`, to limit the format types using the mime types
+- a `FileValidator` with `maxContentSize`, to limit the file size
+- a `FileValidator` with `minFileCount` and `maxFileCount`, to limit the loaded files
+- a `ByteFormatPipe` to format the file size in a human-readable format
+- a `previewUrls` to receive the images/file as a url to show in a preview
 
 For more code samples, have a look at the [DEMO SITE](https://merlosy.github.io/ngx-material-file-input)
-or in the [release notes](https://github.com/daemons88/ngx-custom-material-file-input/releases). 
+or in the [release notes](https://github.com/daemons88/ngx-custom-material-file-input/releases).
 
 ## Install
 
@@ -59,7 +61,7 @@ Change the unit of the ByteFormat pipe
 
 ```ts
 export const config: FileInputConfig = {
-  sizeUnit: 'Octet'
+  sizeUnit: "Octet",
 };
 
 // add with module injection
@@ -74,17 +76,18 @@ implements: [MatFormFieldControl](https://material.angular.io/components/form-fi
 
 **Additionnal properties**
 
-| Name                                   | Description                                                                                                                 |
-| -------------------------------------  | --------------------------------------------------------------------------------------------------------------------------- |
-| _@Input()_ valuePlaceholder: `string`  | Placeholder for file names, empty by default                                                                                |
-| _@Input()_ multiple: `boolean`         | Allows multiple file inputs, `false` by default                                                                             |
-| _@Input()_ autofilled: `boolean`       | Whether the input is currently in an autofilled state. If property is not present on the control it is assumed to be false. |
-| _@Input()_ accept: `string`            | Any value that `accept` attribute can get. [more about "accept"](https://www.w3schools.com/tags/att_input_accept.asp)       |
-| value: `FileInput`                     | Form control value                                                                                                          |
-| empty: `boolean`                       | Whether the input is empty (no files) or not                                                                                |
-| clear(): `(event?) => void`            | Removes all files from the input                                                                                            |
-| previewUrls: `string[]`                | Contains a generate url in memory to show the previews of the files                                                         |
-| _@Input()_ defaultIconBase64: `string` | Set the default icon for the previews of files that are not images, is a base64 string, example: data:image/svg+xml;base64,PHN2ZyB.....                                                                                            |
+| Name                                   | Description                                                                                                                             | Added in Version |
+| :------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------- | :--------------- |
+| _@Input()_ valuePlaceholder: `string`  | Placeholder for file names, empty by default                                                                                            | v1               |
+| _@Input()_ multiple: `boolean`         | Allows multiple file inputs, `false` by default                                                                                         | v1               |
+| _@Input()_ autofilled: `boolean`       | Whether the input is currently in an autofilled state. If property is not present on the control it is assumed to be false.             | v1               |
+| _@Input()_ accept: `string`            | Any value that `accept` attribute can get. [more about "accept"](https://www.w3schools.com/tags/att_input_accept.asp)                   | v1               |
+| _@Input()_ checkDuplicates: `boolean`  | Skip duplicated files if the property is added, `false` by default                                                                      | v21              |
+| value: `FileInput`                     | Form control value                                                                                                                      | v1               |
+| empty: `boolean`                       | Whether the input is empty (no files) or not                                                                                            | v1               |
+| clear(): `(event?) => void`            | Removes all files from the input                                                                                                        | v1               |
+| previewUrls: `string[]`                | Contains a generate url in memory to show the previews of the files                                                                     | v19              |
+| _@Input()_ defaultIconBase64: `string` | Set the default icon for the previews of files that are not images, is a base64 string, example: data:image/svg+xml;base64,PHN2ZyB..... | v19              |
 
 ### ByteFormatPipe
 
@@ -98,12 +101,11 @@ _Output:_ 100 MB
 
 ### FileValidator
 
-| Name                                              | Description                                                   | Error structure                             | Added in Version |
-| ------------------------------------------------- | ------------------------------------------------------------- | ------------------------------------------- | ---------------- |
-| maxContentSize(value: `number`): `ValidatorFn`    | Limit the total file(s) size to the given value               | `{ actualSize: number, maxSize: number }`   | v1               |
-| acceptedMimeTypes(value: `string`): `ValidatorFn` | Limit the mime types valid to use given value                 | `{ validTypes: string }`                    | v18              |
-| minFileCount(value: `number`): `ValidatorFn`      | Limit the total of minimum file(s) loaded to the given value  | `{ minCount: number, actualCount: number }` | v20              |
-| maxFileCount(value: `number`): `ValidatorFn`      | Limit the total of maximum file(s) loaded to the given value  | `{ maxCount: number, actualCount: number }` | v20              |
-
+| Name                                              | Description                                                  | Error structure                             | Added in Version |
+| ------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------- | ---------------- |
+| maxContentSize(value: `number`): `ValidatorFn`    | Limit the total file(s) size to the given value              | `{ actualSize: number, maxSize: number }`   | v1               |
+| acceptedMimeTypes(value: `string`): `ValidatorFn` | Limit the mime types valid to use given value                | `{ validTypes: string }`                    | v18              |
+| minFileCount(value: `number`): `ValidatorFn`      | Limit the total of minimum file(s) loaded to the given value | `{ minCount: number, actualCount: number }` | v20              |
+| maxFileCount(value: `number`): `ValidatorFn`      | Limit the total of maximum file(s) loaded to the given value | `{ maxCount: number, actualCount: number }` | v20              |
 
 **Sponsored by: [MyTalentAid](https://mytalentaid.com/?lang=en)**
