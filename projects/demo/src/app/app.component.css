@@ -1,134 +1,233 @@
 :host {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-      Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
-      "Segoe UI Symbol";
-    font-size: 14px;
-    color: #333;
-    box-sizing: border-box;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-size: 14px;
+  color: #333;
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
-  html, body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    overflow-y: auto;
-  }
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow-y: auto;
+}
 
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    margin: 8px 0;
-  }
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 8px 0;
+}
 
-  p {
-    margin: 0;
-  }
+p {
+  margin: 0;
+}
 
-  .spacer {
-    flex: 1;
-  }
+.spacer {
+  flex: 1;
+}
 
-  .toolbar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    background-color: #1976d2;
-    color: white;
-    font-weight: 600;
-    z-index: 1000;
-  }
+.toolbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  background-color: #1976d2;
+  color: white;
+  font-weight: 600;
+  z-index: 1000;
+}
 
-  .toolbar img {
-    margin: 0 16px;
-  }
+.toolbar img {
+  margin: 0 16px;
+}
 
-  .toolbar #twitter-logo {
-    height: 40px;
-    margin: 0 8px;
-  }
+.toolbar #twitter-logo {
+  height: 40px;
+  margin: 0 8px;
+}
 
-  .toolbar #youtube-logo {
-    height: 40px;
-    margin: 0 16px;
-  }
+.toolbar #youtube-logo {
+  height: 40px;
+  margin: 0 16px;
+}
 
-  .toolbar #twitter-logo:hover,
-  .toolbar #youtube-logo:hover {
-    opacity: 0.8;
-  }
+.toolbar #twitter-logo:hover,
+.toolbar #youtube-logo:hover {
+  opacity: 0.8;
+}
 
-  .content {
-    display: flex;
-    padding: 82px 16px 32px; 
-    margin: 0 auto;
-    max-width: 960px;
-    flex-direction: column;
-    align-items: center;
-    box-sizing: border-box;
-  }
+.content {
+  display: flex;
+  padding: 82px 16px 32px;
+  margin: 0 auto;
+  max-width: 960px;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+}
 
-  /* One File */
+/* ==========================================================================
+   📂 One File
+   ========================================================================== */
 
-  .file-input-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-  }
-  
-  .one-file-preview {
-    margin-bottom: 12px
-  }
-  
-  .one-file-preview img {
-    max-width: 150px;
-    max-height: 150px;
-    object-fit: cover; 
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  }
+.file-input-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
 
-  /* Multiple Files */
-  
-  .file-preview {
-    width: 80px;
-    height: 80px;
-    object-fit: cover; 
-    border-radius: 8px;
-    margin-right: 10px;
-  }
+.one-file-preview {
+  margin-bottom: 12px;
+}
 
-  .file-preview-container {
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-  }
+.one-file-preview img {
+  max-width: 150px;
+  max-height: 150px;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
 
-  .file-info {
-    flex-grow: 1;
-  }
+/* ==========================================================================
+   📂 Multiple Files
+   ========================================================================== */
 
-  .clear-button {
-    margin-left: 10px;
-    cursor: pointer;
-  }
+.file-preview {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-right: 10px;
+}
 
-  .file-name {
-    margin-top: 5px;
-    font-size: 12px;
-    color: #555;
-  }
+.file-preview-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
 
-  .previews-container {
-    width: 100%;
-    margin-top: 14px;
+.file-info {
+  flex-grow: 1;
+}
+
+.clear-button {
+  margin-left: 10px;
+  cursor: pointer;
+}
+
+.file-name {
+  margin-top: 5px;
+  font-size: 12px;
+  color: #555;
+}
+
+.previews-container {
+  width: 100%;
+  margin-top: 14px;
+}
+
+/* ==========================================================================
+   📂 Drag and Drop Component 
+   ========================================================================== */
+
+.dropzone-wrapper {
+  background-color: #fafafa;
+  border-radius: 12px;
+  padding: 32px;
+  border: 2px dashed #cfd8dc;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 20px 0;
+}
+
+.dropzone-form-field {
+  width: 100%;
+}
+
+/* 🌟 Locking the library's native view to 200px height */
+.dropzone-form-field ::ng-deep .file-dropzone-view {
+  height: 200px !important;
+}
+
+/* ==========================================================================
+   🖼️ Drag & Drop File Previews
+   ========================================================================== */
+
+.dropzone-previews {
+  margin-top: 24px;
+  display: grid;
+  /* 2-column grid */
+  grid-template-columns: repeat(auto-fit, minmax(calc(50% - 8px), 1fr));
+  gap: 16px;
+  width: 100%;
+}
+
+@media (max-width: 600px) {
+  .dropzone-previews {
+    grid-template-columns: 1fr;
   }
+}
+
+.dropzone-preview-card {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04);
+  box-sizing: border-box;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.dropzone-preview-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.dropzone-preview-card .file-preview {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.dropzone-preview-card .file-info {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding-right: 8px;
+  flex-grow: 1;
+}
+
+.dropzone-preview-card .file-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: #333333;
+}
+
+.dropzone-preview-card .file-size-badge {
+  font-size: 11px;
+  color: #757575;
+  margin-top: 4px;
+}

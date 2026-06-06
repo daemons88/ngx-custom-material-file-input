@@ -9,7 +9,7 @@
     "pack-lib": "cd dist/material-file-input && npm pack",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "install-local": "npm run build-library && npm run pack-lib && npm install dist/material-file-input/ngx-custom-material-file-input-22.0.0.tgz",
+    "install-local": "npm run build-library && npm run pack-lib && npm install dist/material-file-input/ngx-custom-material-file-input-22.0.0.tgz --legacy-peer-deps",
     "publish": "npm run build-library && npm run pack-lib && npm publish dist/material-file-input/ngx-custom-material-file-input-22.0.0.tgz --access public",
     "lint": "ng lint"
   },

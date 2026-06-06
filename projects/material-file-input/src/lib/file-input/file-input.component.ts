@@ -10,6 +10,7 @@ import {
   DoCheck,
   ChangeDetectionStrategy,
   inject,
+  ChangeDetectorRef,
 } from '@angular/core';
 import {
   ControlValueAccessor,
@@ -24,6 +25,7 @@ import { FocusMonitor } from '@angular/cdk/a11y';
 import { FileInputBase } from './file-input.base';
 import { FileInput } from '../models/file-input.model';
 import { Subject } from 'rxjs';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'ngx-mat-file-input',
@@ -32,6 +34,7 @@ import { Subject } from 'rxjs';
   providers: [
     { provide: MatFormFieldControl, useExisting: FileInputComponent },
   ],
+  imports: [MatIconModule],
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
@@ -51,6 +54,10 @@ export class FileInputComponent
 
   @Input() autofilled = false;
 
+  private fm = inject(FocusMonitor);
+  private _elementRef = inject(ElementRef);
+  private _renderer = inject(Renderer2);
+  private _cdr = inject(ChangeDetectorRef);
   private _placeholder: string;
   private _required = false;
   private _multiple = false;
@@ -58,17 +65,16 @@ export class FileInputComponent
   private _previewUrls: string[] = [];
   private _objectURLs: string[] = [];
   private _internalValue: FileInput | null = null;
+  private _disabled = false;
+  private _displayMode: 'classic' | 'dropzone' = 'classic';
 
-  @Input() valuePlaceholder: string;
   @Input() accept: string | null = null;
   @Input() errorStateMatcher: ErrorStateMatcher;
   @Input() defaultIconBase64: string =
-    'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjI0Ij48cGF0aCBkPSJNMCAwaDI0djI0SDBWMHoiIGZpbGw9Im5vbmUiLz48cGF0aCBkPSJNMTUgMkg2Yy0xLjEgMC0yIC45LTIgMnYxNmMwIDEuMS45IDIgMiAyaDEyYzEuMSAwIDItLjkgMi0yVjdsLTUtNXpNNiAyMFY0aDh2NGg0djEySDZ6bTEwLTEwdjVjMCAyLjIxLTEuNzkgNC00IDRzLTQtMS43OS00LTRWOC41YzAtMS40NyAxLjI2LTIuNjQgMi43Ni0yLjQ5IDEuMy4xMyAyLjI0IDEuMzIgMi4yNCAyLjYzVjE1aC0yVjguNWMwLS4yOC0uMjItLjUtLjUtLjVzLS41LjIyLS41LjVWMTVjMCAxLjEuOSAyIDIgMnMyLS45IDItMnYtNWgyeiIvPjwvc3ZnPg==';
+    'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjI0Ij48cGF0aCBkPSJNMCAwaDI0djI0SDBWMHoiIGZpbGw9Im5vbmUiLz48cGF0aCBkPSJNMTUgMkg2Yy0xLjEgMC0yIC45LTIgMnYxNmMwIDEuMS45IDIgMiAyaDEyYzEuMSAwIDItLjkgMi0yVjdsLTUtNXpNNiAyMFY0aDh2NGg0djEySDZ6bTEwLTEwdjVjMCAyLjIxLTEuNzkgNC00IDRzLTQtMS43OS00LTRWOC41YzAtMS40NyAxLjI2LTIuNjQgMi43Ni0yLjQ5IDEuMy4xMyAyLjI0IDEuMzIgMi4yNCAyLjYzVjE1aC0yVjguNWMwLS4yOC0uMjItLjUtLjUtLjVsLS41LjIyLS41LjVWMTVjMCAxLjEuOSAyIDIgMnMyLS45IDItMnYtNWgyeiIvPjwvc3ZnPg==';
 
+  public isDragging = false;
   public empty = true;
-  private fm = inject(FocusMonitor);
-  private _elementRef = inject(ElementRef);
-  private _renderer = inject(Renderer2);
 
   override get errorState(): boolean {
     const control = this.ngControl?.control || null;
@@ -86,6 +92,15 @@ export class FileInputComponent
   }
 
   @Input()
+  get displayMode(): 'classic' | 'dropzone' {
+    return this._displayMode;
+  }
+  set displayMode(mode: 'classic' | 'dropzone') {
+    this._displayMode = mode;
+    this.updateHostClasses();
+  }
+
+  @Input()
   get value(): FileInput | null {
     return this.empty ? null : this._internalValue;
   }
@@ -93,9 +108,9 @@ export class FileInputComponent
     this._internalValue = fileInput;
     this.empty = !this._internalValue || !this._internalValue.files.length;
 
-    this.stateChanges.next();
-    this._onChange(this._internalValue);
     this.updatePreviewUrls();
+    this._onChange(this._internalValue);
+    this.stateChanges.next();
   }
 
   @Input()
@@ -135,20 +150,25 @@ export class FileInputComponent
 
   @HostBinding('class.mat-form-field-should-float')
   get shouldLabelFloat() {
-    return this.focused || !this.empty || this.valuePlaceholder !== undefined;
+    return (
+      this.focused ||
+      !this.empty ||
+      this.placeholder !== undefined ||
+      this._displayMode === 'dropzone'
+    );
   }
 
-  @HostBinding('class.file-input-disabled')
   get isDisabled() {
     return this.disabled;
   }
+
   @Input()
   get disabled(): boolean {
-    return this._elementRef.nativeElement.disabled;
+    return this._disabled;
   }
   set disabled(dis: boolean | string) {
-    const isDisabled = coerceBooleanProperty(dis);
-    this.setDisabledState(isDisabled);
+    this._disabled = coerceBooleanProperty(dis);
+    this.setDisabledState(this._disabled);
     this.stateChanges.next();
   }
 
@@ -162,7 +182,11 @@ export class FileInputComponent
   get fileNames() {
     return this._internalValue
       ? this._internalValue.fileNames
-      : this.valuePlaceholder;
+      : this.placeholder;
+  }
+
+  get shouldShowFileName(): boolean {
+    return this.displayMode === 'classic' && !this.empty;
   }
 
   constructor() {
@@ -193,9 +217,11 @@ export class FileInputComponent
       .subscribe((origin) => {
         this.focused = !!origin;
         this.stateChanges.next();
+        this._cdr.markForCheck();
       });
   }
 
+  @HostListener('click', ['$event'])
   public onContainerClick(event: MouseEvent) {
     if (
       (event.target as Element).tagName.toLowerCase() !== 'input' &&
@@ -209,11 +235,12 @@ export class FileInputComponent
 
   public writeValue(obj: FileInput | null): void {
     this.value = obj;
+
     if (!obj || obj.files.length === 0) {
       const inputElement =
         this._elementRef.nativeElement.querySelector('input');
       if (inputElement) {
-        inputElement.value = null;
+        inputElement.value = '';
       }
     }
   }
@@ -243,7 +270,55 @@ export class FileInputComponent
   change(event: Event) {
     const fileList: FileList | null = (<HTMLInputElement>event.target).files;
     if (!fileList) return;
+    this.processFileSelection(fileList);
+    (<HTMLInputElement>event.target).value = '';
+  }
 
+  @HostListener('dragover', ['$event'])
+  onDragOver(event: DragEvent) {
+    if (this._displayMode === 'dropzone' && !this.disabled) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      if (!this.isDragging) {
+        this.isDragging = true;
+        this.updateHostClasses();
+        this.stateChanges.next();
+      }
+    }
+  }
+
+  @HostListener('dragleave', ['$event'])
+  onDragLeave(event: DragEvent) {
+    if (this._displayMode === 'dropzone') {
+      event.preventDefault();
+      event.stopPropagation();
+
+      if (this.isDragging) {
+        this.isDragging = false;
+        this.updateHostClasses();
+        this.stateChanges.next();
+      }
+    }
+  }
+
+  @HostListener('drop', ['$event'])
+  onDrop(event: DragEvent) {
+    if (this._displayMode === 'dropzone' && !this.disabled) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      this.isDragging = false;
+      this.updateHostClasses();
+      this.stateChanges.next();
+
+      if (event.dataTransfer && event.dataTransfer.files.length > 0) {
+        this.processFileSelection(event.dataTransfer.files);
+      }
+    }
+  }
+
+  private processFileSelection(fileList: FileList) {
     let newFiles = Array.from(fileList);
     let currentFiles = this._internalValue?.files || [];
     let filesToSet: File[] = [];
@@ -270,11 +345,11 @@ export class FileInputComponent
         }
       }
     } else {
-      filesToSet = newFiles;
+      filesToSet = newFiles.slice(0, 1);
     }
 
     this.value = new FileInput(filesToSet);
-    (<HTMLInputElement>event.target).value = '';
+    this.stateChanges.next();
   }
 
   private updatePreviewUrls() {
@@ -311,11 +386,39 @@ export class FileInputComponent
   }
 
   public setDisabledState(isDisabled: boolean): void {
+    this._disabled = isDisabled;
     this._renderer.setProperty(
       this._elementRef.nativeElement,
       'disabled',
       isDisabled,
     );
+    if (isDisabled) {
+      this._renderer.addClass(
+        this._elementRef.nativeElement,
+        'file-input-disabled',
+      );
+    } else {
+      this._renderer.removeClass(
+        this._elementRef.nativeElement,
+        'file-input-disabled',
+      );
+    }
+  }
+
+  private updateHostClasses() {
+    const el = this._elementRef.nativeElement;
+
+    if (this._displayMode === 'dropzone') {
+      this._renderer.addClass(el, 'mode-dropzone');
+    } else {
+      this._renderer.removeClass(el, 'mode-dropzone');
+    }
+
+    if (this.isDragging) {
+      this._renderer.addClass(el, 'drag-active');
+    } else {
+      this._renderer.removeClass(el, 'drag-active');
+    }
   }
 
   public open() {
@@ -325,7 +428,11 @@ export class FileInputComponent
   }
 
   ngOnInit() {
-    this.multiple = coerceBooleanProperty(this.multiple);
+    this.updateHostClasses();
+
+    if (this.ngControl) {
+      this.updateErrorState();
+    }
   }
 
   ngOnDestroy() {

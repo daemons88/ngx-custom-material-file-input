@@ -1,4 +1,3 @@
-<!-- Toolbar -->
 <div class="toolbar" role="banner">
   <img
     width="40"
@@ -57,11 +56,10 @@
   <br />
   <form [formGroup]="demoForm">
     <div class="file-input-container">
-      <!-- Preview Optional -->
       @if (fileInput.previewUrls.length > 0) {
-      <div class="one-file-preview">
-        <img [src]="fileInput.previewUrls[0]" alt="Preview Image" />
-      </div>
+        <div class="one-file-preview">
+          <img [src]="fileInput.previewUrls[0]" alt="Preview Image" />
+        </div>
       }
       <mat-form-field>
         <mat-label>Basic input file</mat-label>
@@ -70,26 +68,34 @@
           formControlName="basicfile"
         ></ngx-mat-file-input>
         @if (!fileInput.empty) {
-        <button mat-icon-button matSuffix (click)="fileInput.clear($event)">
-          <mat-icon>clear</mat-icon>
-        </button>
-        } @if (fileInput.empty) {
-        <mat-icon matSuffix>folder</mat-icon>
-        } @if (basicfile?.hasError('required')) {
-        <mat-error> Please select a file </mat-error>
-        } @if (basicfile?.hasError('maxContentSize')) {
-        <mat-error>
-          The total size must not exceed
-          {{ basicfile?.getError("maxContentSize").maxSize | byteFormat }}
-          ({{ basicfile?.getError("maxContentSize").actualSize | byteFormat }}).
-        </mat-error>
-        } @if (basicfile?.hasError('acceptedMimeTypes')) {
-        <mat-error>
-          <p>
-            Accepted MIME types:
-            {{ basicfile?.getError("acceptedMimeTypes").validTypes.join(", ") }}
-          </p>
-        </mat-error>
+          <button mat-icon-button matSuffix (click)="fileInput.clear($event)">
+            <mat-icon>clear</mat-icon>
+          </button>
+        }
+        @if (fileInput.empty) {
+          <mat-icon matSuffix>folder</mat-icon>
+        }
+        @if (basicfile?.hasError("required")) {
+          <mat-error> Please select a file </mat-error>
+        }
+        @if (basicfile?.hasError("maxContentSize")) {
+          <mat-error>
+            The total size must not exceed
+            {{ basicfile?.getError("maxContentSize").maxSize | byteFormat }}
+            ({{
+              basicfile?.getError("maxContentSize").actualSize | byteFormat
+            }}).
+          </mat-error>
+        }
+        @if (basicfile?.hasError("acceptedMimeTypes")) {
+          <mat-error>
+            <p>
+              Accepted MIME types:
+              {{
+                basicfile?.getError("acceptedMimeTypes").validTypes.join(", ")
+              }}
+            </p>
+          </mat-error>
         }
       </mat-form-field>
     </div>
@@ -106,47 +112,114 @@
           multiple
         ></ngx-mat-file-input>
         @if (!multipleFileInput.empty) {
-        <button
-          mat-icon-button
-          matSuffix
-          (click)="multipleFileInput.clear($event)"
-        >
-          <mat-icon>clear</mat-icon>
-        </button>
-        } @if (multipleFileInput.empty) {
-        <mat-icon matSuffix>folder</mat-icon>
-        } @if (multiplefile?.hasError('minFileCount')) {
-        <mat-error> You need at least {{ minFiles }} uploaded file </mat-error>
-        } @if (multiplefile?.hasError('maxFileCount')) {
-        <mat-error> You can have max {{ maxFiles }} uploaded file </mat-error>
+          <button
+            mat-icon-button
+            matSuffix
+            (click)="multipleFileInput.clear($event)"
+          >
+            <mat-icon>clear</mat-icon>
+          </button>
+        }
+        @if (multipleFileInput.empty) {
+          <mat-icon matSuffix>folder</mat-icon>
+        }
+        @if (multiplefile?.hasError("minFileCount")) {
+          <mat-error>
+            You need at least {{ minFiles }} uploaded file
+          </mat-error>
+        }
+        @if (multiplefile?.hasError("maxFileCount")) {
+          <mat-error> You can have max {{ maxFiles }} uploaded file </mat-error>
         }
       </mat-form-field>
     </div>
 
-    <!-- Preview Optional -->
     @if (multipleFileInput.previewUrls.length > 0) {
-    <div class="previews-container">
-      @for (file of multipleFileInput.value?.files; track trackFile($index,
-      file); let i = $index) {
-      <div class="file-preview-container">
-        <img
-          [src]="multipleFileInput.previewUrls[i]"
-          alt="File Preview"
-          class="file-preview"
-        />
-        <div class="file-info">
-          <p class="file-name">{{ file.name }}</p>
-        </div>
-        <button
-          mat-icon-button
-          (click)="multipleFileInput.removeFile(i)"
-          aria-label="Remove file"
-        >
-          <mat-icon>close</mat-icon>
-        </button>
+      <div class="previews-container">
+        @for (
+          file of multipleFileInput.value?.files;
+          track trackFile($index, file);
+          let i = $index
+        ) {
+          <div class="file-preview-container">
+            <img
+              [src]="multipleFileInput.previewUrls[i]"
+              alt="File Preview"
+              class="file-preview"
+            />
+            <div class="file-info">
+              <p class="file-name">{{ file.name }}</p>
+            </div>
+            <button
+              mat-icon-button
+              (click)="multipleFileInput.removeFile(i)"
+              aria-label="Remove file"
+            >
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+        }
       </div>
+    }
+    <br />
+    <br />
+
+    <div class="file-input-container dropzone-wrapper">
+      <mat-form-field subscriptSizing="dynamic" class="dropzone-form-field">
+        <ngx-mat-file-input
+          #dropzoneInput
+          formControlName="dropzonefile"
+          displayMode="dropzone"
+          placeholder="Drag & drop files here or browse"
+          multiple
+        ></ngx-mat-file-input>
+
+        @if (!dropzoneInput.empty) {
+          <button
+            mat-icon-button
+            matSuffix
+            (click)="dropzoneInput.clear($event)"
+            title="Clear all files"
+          >
+            <mat-icon>delete_sweep</mat-icon>
+          </button>
+        }
+
+        @if (dropzonefile?.hasError("maxFileCount")) {
+          <mat-error>Maximum of {{ maxFiles }} files allowed.</mat-error>
+        }
+      </mat-form-field>
+
+      @if (dropzoneInput.previewUrls.length > 0) {
+        <div class="previews-container dropzone-previews">
+          @for (
+            file of dropzoneInput.value?.files;
+            track trackFile($index, file);
+            let i = $index
+          ) {
+            <div class="file-preview-container dropzone-preview-card">
+              <img
+                [src]="dropzoneInput.previewUrls[i]"
+                alt="Preview"
+                class="file-preview"
+              />
+              <div class="file-info">
+                <p class="file-name" [title]="file.name">{{ file.name }}</p>
+                <span class="file-size-badge">{{
+                  file.size | byteFormat
+                }}</span>
+              </div>
+              <button
+                mat-icon-button
+                color="warn"
+                (click)="dropzoneInput.removeFile(i); $event.stopPropagation()"
+              >
+                <mat-icon>remove_circle</mat-icon>
+              </button>
+            </div>
+          }
+        </div>
       }
     </div>
-    }
   </form>
 </div>

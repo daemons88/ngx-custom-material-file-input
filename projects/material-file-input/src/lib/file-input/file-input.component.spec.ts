@@ -19,12 +19,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { FileInput } from '../models/file-input.model';
 import { FileInputComponent } from './file-input.component';
+import { By } from '@angular/platform-browser';
 
 /** Custom ErrorStateMatcher for tests */
 class FileInputSpecErrorStateMatcher implements ErrorStateMatcher {
   isErrorState(
     control: FormControl | null,
-    _: FormGroupDirective | NgForm | null
+    _: FormGroupDirective | NgForm | null,
   ): boolean {
     return !!(control && control.errors !== null && control.touched);
   }
@@ -34,7 +35,7 @@ class FileInputSpecErrorStateMatcher implements ErrorStateMatcher {
 class OverrideErrorStateMatcher implements ErrorStateMatcher {
   isErrorState(
     control: FormControl | null,
-    _: FormGroupDirective | NgForm | null
+    _: FormGroupDirective | NgForm | null,
   ): boolean {
     return !!(
       control &&
@@ -49,7 +50,7 @@ const createMockFile = (
   name: string,
   size: number,
   lastModified: number,
-  type = 'text/plain'
+  type = 'text/plain',
 ): File => {
   const blob = new Blob([''], { type }) as any;
   Object.defineProperty(blob, 'name', { value: name });
@@ -324,7 +325,7 @@ describe('FileInputComponent', () => {
 
       const isErrorStateSpy = spyOn(
         mockMatcher,
-        'isErrorState'
+        'isErrorState',
       ).and.returnValue(false);
 
       // Called once on initial setup/ngOnInit or first change detection
@@ -393,7 +394,7 @@ describe('FileInputComponent', () => {
 
       spyOn(
         component['_elementRef'].nativeElement,
-        'querySelector'
+        'querySelector',
       ).and.returnValue(inputElement);
     });
 
@@ -495,5 +496,152 @@ describe('FileInputComponent', () => {
       // The single file should be the one from the second event
       expect(component.value?.files[0]).toBe(fileA_duplicate);
     }));
+  });
+
+  // ---------------------------------------------------------------------------
+  // 🎛️ DRAG AND DROP (DROPZONE) SUITE
+  // ---------------------------------------------------------------------------
+  describe('Drag and Drop Functionality', () => {
+    let dropzoneElement: HTMLElement;
+
+    beforeEach(() => {
+      component.displayMode = 'dropzone';
+      component.disabled = false;
+      component.isDragging = false;
+      fixture.detectChanges();
+      dropzoneElement = fixture.nativeElement;
+    });
+
+    it('should initialize with dragging states set to false', () => {
+      expect(component.isDragging).toBeFalse();
+      expect(dropzoneElement.classList.contains('drag-active')).toBeFalse();
+    });
+
+    it('should set dragging states to true on dragover when component is active', () => {
+      const dragOverEvent = new DragEvent('dragover', {
+        bubbles: true,
+        cancelable: true,
+      });
+      spyOn(dragOverEvent, 'preventDefault');
+      spyOn(dragOverEvent, 'stopPropagation');
+
+      dropzoneElement.dispatchEvent(dragOverEvent);
+      fixture.detectChanges();
+
+      expect(dragOverEvent.preventDefault).toHaveBeenCalled();
+      expect(dragOverEvent.stopPropagation).toHaveBeenCalled();
+      expect(component.isDragging).toBeTrue();
+      expect(dropzoneElement.classList.contains('drag-active')).toBeTrue();
+    });
+
+    it('should not activate dragging states if disabled', fakeAsync(() => {
+      component.disabled = true;
+      fixture.detectChanges();
+
+      const dropzone = fixture.debugElement.query(
+        By.css('.file-dropzone-view'),
+      );
+      dropzone.triggerEventHandler('dragover', { preventDefault: () => {} });
+
+      fixture.detectChanges();
+      expect(component.isDragging).toBeFalse();
+    }));
+
+    it('should reset dragging states to false on dragleave', () => {
+      component.isDragging = true;
+      fixture.nativeElement.classList.add('drag-active');
+      fixture.detectChanges();
+
+      const dragLeaveEvent = new DragEvent('dragleave', {
+        bubbles: true,
+        cancelable: true,
+      });
+      spyOn(dragLeaveEvent, 'preventDefault');
+      spyOn(dragLeaveEvent, 'stopPropagation');
+
+      dropzoneElement.dispatchEvent(dragLeaveEvent);
+      fixture.detectChanges();
+
+      expect(dragLeaveEvent.preventDefault).toHaveBeenCalled();
+      expect(dragLeaveEvent.stopPropagation).toHaveBeenCalled();
+      expect(component.isDragging).toBeFalse();
+      expect(dropzoneElement.classList.contains('drag-active')).toBeFalse();
+    });
+
+    it('should accept dropped files, process them, and reset dragging states', fakeAsync(() => {
+      component.multiple = true;
+      component.isDragging = true;
+      fixture.detectChanges();
+      tick();
+
+      const fileA = createMockFile('dropped-data.csv', 300, 4000, 'text/csv');
+      const mockFileList = createMockFileList([fileA]);
+      const dataTransferMock = { files: mockFileList };
+      const dropEvent = new DragEvent('drop', {
+        bubbles: true,
+        cancelable: true,
+      });
+
+      Object.defineProperty(dropEvent, 'dataTransfer', {
+        value: dataTransferMock,
+      });
+      spyOn(dropEvent, 'preventDefault');
+      spyOn(dropEvent, 'stopPropagation');
+
+      dropzoneElement.dispatchEvent(dropEvent);
+      tick();
+      fixture.detectChanges();
+
+      expect(dropEvent.preventDefault).toHaveBeenCalled();
+      expect(dropEvent.stopPropagation).toHaveBeenCalled();
+      expect(component.isDragging).toBeFalse();
+      expect(dropzoneElement.classList.contains('drag-active')).toBeFalse();
+      expect(component.value).not.toBeNull();
+      expect(component.value?.files.length).toBe(1);
+    }));
+
+    it('should strictly slice file collection down to a single index on drop if multiple is false', () => {
+      component.multiple = false;
+      fixture.detectChanges();
+
+      const fileA = createMockFile('first.png', 120, 1000, 'image/png');
+      const fileB = createMockFile('second.png', 180, 2000, 'image/png');
+      const dataTransferMock = { files: createMockFileList([fileA, fileB]) };
+      const dropEvent = new DragEvent('drop', {
+        bubbles: true,
+        cancelable: true,
+      });
+
+      Object.defineProperty(dropEvent, 'dataTransfer', {
+        value: dataTransferMock,
+      });
+
+      dropzoneElement.dispatchEvent(dropEvent);
+      fixture.detectChanges();
+
+      expect(component.value?.files.length).toBe(1);
+      expect(component.value?.files[0].name).toBe('first.png');
+    });
+
+    it('should block file process updates on drop if the component is disabled', () => {
+      component.disabled = true;
+      fixture.detectChanges();
+
+      const fileA = createMockFile('secure.pdf', 500, 1500, 'application/pdf');
+      const dataTransferMock = { files: createMockFileList([fileA]) };
+      const dropEvent = new DragEvent('drop', {
+        bubbles: true,
+        cancelable: true,
+      });
+
+      Object.defineProperty(dropEvent, 'dataTransfer', {
+        value: dataTransferMock,
+      });
+
+      dropzoneElement.dispatchEvent(dropEvent);
+      fixture.detectChanges();
+
+      expect(component.value).toBeNull();
+    });
   });
 });

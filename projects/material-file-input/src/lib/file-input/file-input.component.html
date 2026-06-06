@@ -1,8 +1,28 @@
-<input
-  #input
-  [id]="id"
-  type="file"
-  [attr.multiple]="multiple ? '' : null"
-  [attr.accept]="accept"
-/>
-<span class="file-input-value" [title]="fileNames">{{ fileNames }}</span>
+<div class="ngx-mat-file-input-container">
+  <input
+    type="file"
+    [attr.id]="id"
+    [attr.multiple]="multiple ? '' : null"
+    [attr.accept]="accept"
+    [disabled]="disabled"
+    (change)="change($event)"
+    #input
+  />
+
+  @if (displayMode === "dropzone") {
+    <div class="file-dropzone-view">
+      <div class="dropzone-area-message">
+        <mat-icon class="dropzone-icon">cloud_upload</mat-icon>
+        <span class="dropzone-main-prompt">
+          {{ placeholder || "Drag & drop files here or browse" }}
+        </span>
+      </div>
+    </div>
+  } @else {
+    <div class="file-name-wrapper">
+      <span class="file-name-text" [title]="fileNames">
+        {{ shouldShowFileName ? fileNames : placeholder }}
+      </span>
+    </div>
+  }
+</div>

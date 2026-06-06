@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -32,15 +32,16 @@ import { MatInputModule } from '@angular/material/input';
   ],
 })
 export class AppComponent {
+  private readonly formBuilder = inject(FormBuilder);
   private readonly validFileTypes = ['image/jpeg', 'image/png'];
   private readonly maxSizeBytes = 2097152; // 2 MB
-  public readonly minFiles = 1;
-  public readonly maxFiles = 2;
+  public readonly minFiles = 2;
+  public readonly maxFiles = 3;
   public demoForm: FormGroup;
 
   title = 'demo';
 
-  constructor(private formBuilder: FormBuilder) {
+  constructor() {
     this.demoForm = this.formBuilder.group({
       basicfile: [
         '',
@@ -57,6 +58,7 @@ export class AppComponent {
           FileValidator.maxFileCount(this.maxFiles),
         ],
       ],
+      dropzonefile: ['', [FileValidator.maxFileCount(this.maxFiles)]],
     });
   }
 
@@ -66,6 +68,10 @@ export class AppComponent {
 
   get multiplefile() {
     return this.demoForm.get('multiplefile');
+  }
+
+  get dropzonefile() {
+    return this.demoForm.get('dropzonefile');
   }
 
   public trackFile(_index: number, file: File) {
