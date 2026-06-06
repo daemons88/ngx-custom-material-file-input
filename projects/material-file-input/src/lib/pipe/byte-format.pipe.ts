@@ -1,4 +1,4 @@
-import { Pipe, PipeTransform, Optional, Inject } from '@angular/core';
+import { Pipe, PipeTransform, inject, Optional } from '@angular/core';
 import {
   FileInputConfig,
   NGX_MAT_FILE_INPUT_CONFIG,
@@ -6,15 +6,10 @@ import {
 
 @Pipe({ name: 'byteFormat', standalone: true })
 export class ByteFormatPipe implements PipeTransform {
-  private unit: string;
-
-  constructor(
-    @Optional()
-    @Inject(NGX_MAT_FILE_INPUT_CONFIG)
-    private config: FileInputConfig
-  ) {
-    this.unit = config ? config.sizeUnit : 'Byte';
-  }
+  private config = inject(NGX_MAT_FILE_INPUT_CONFIG, {
+    optional: true,
+  }) as FileInputConfig | null;
+  private unit: string = this.config ? this.config.sizeUnit : 'Byte';
 
   transform(value: any, args?: any): any {
     if (parseInt(value, 10) >= 0) {

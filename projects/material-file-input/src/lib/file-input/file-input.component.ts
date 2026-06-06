@@ -7,10 +7,9 @@ import {
   HostBinding,
   Renderer2,
   HostListener,
-  Optional,
-  Self,
   DoCheck,
-  ChangeDetectionStrategy
+  ChangeDetectionStrategy,
+  inject,
 } from '@angular/core';
 import {
   ControlValueAccessor,
@@ -24,7 +23,7 @@ import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { FocusMonitor } from '@angular/cdk/a11y';
 import { FileInputBase } from './file-input.base';
 import { FileInput } from '../models/file-input.model';
-import { Subject } from 'rxjs/internal/Subject';
+import { Subject } from 'rxjs';
 
 @Component({
   selector: 'ngx-mat-file-input',
@@ -67,6 +66,9 @@ export class FileInputComponent
     'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjI0Ij48cGF0aCBkPSJNMCAwaDI0djI0SDBWMHoiIGZpbGw9Im5vbmUiLz48cGF0aCBkPSJNMTUgMkg2Yy0xLjEgMC0yIC45LTIgMnYxNmMwIDEuMS45IDIgMiAyaDEyYzEuMSAwIDItLjkgMi0yVjdsLTUtNXpNNiAyMFY0aDh2NGg0djEySDZ6bTEwLTEwdjVjMCAyLjIxLTEuNzkgNC00IDRzLTQtMS43OS00LTRWOC41YzAtMS40NyAxLjI2LTIuNjQgMi43Ni0yLjQ5IDEuMy4xMyAyLjI0IDEuMzIgMi4yNCAyLjYzVjE1aC0yVjguNWMwLS4yOC0uMjItLjUtLjUtLjVzLS41LjIyLS41LjVWMTVjMCAxLjEuOSAyIDIgMnMyLS45IDItMnYtNWgyeiIvPjwvc3ZnPg==';
 
   public empty = true;
+  private fm = inject(FocusMonitor);
+  private _elementRef = inject(ElementRef);
+  private _renderer = inject(Renderer2);
 
   override get errorState(): boolean {
     const control = this.ngControl?.control || null;
@@ -163,33 +165,35 @@ export class FileInputComponent
       : this.valuePlaceholder;
   }
 
-  constructor(
-    private fm: FocusMonitor,
-    private _elementRef: ElementRef,
-    private _renderer: Renderer2,
-    public override _defaultErrorStateMatcher: ErrorStateMatcher,
-    @Optional()
-    @Self()
-    public override ngControl: NgControl,
-    @Optional() public override _parentForm: NgForm,
-    @Optional() public override _parentFormGroup: FormGroupDirective
-  ) {
+  constructor() {
+    const defaultErrorMatcher = inject(ErrorStateMatcher);
+    const selfNgControl = inject(NgControl, { optional: true, self: true })!;
+    const parentForm = inject(NgForm, { optional: true });
+    const parentFormGroup = inject(FormGroupDirective, { optional: true });
+
     super(
-      _defaultErrorStateMatcher,
-      _parentForm,
-      _parentFormGroup,
-      ngControl,
-      new Subject<void>()
+      defaultErrorMatcher,
+      parentForm,
+      parentFormGroup,
+      selfNgControl,
+      new Subject<void>(),
     );
+
+    this._defaultErrorStateMatcher = defaultErrorMatcher;
+    this.ngControl = selfNgControl;
+    this._parentForm = parentForm;
+    this._parentFormGroup = parentFormGroup;
 
     if (this.ngControl != null) {
       this.ngControl.valueAccessor = this;
     }
 
-    fm.monitor(_elementRef.nativeElement, true).subscribe((origin) => {
-      this.focused = !!origin;
-      this.stateChanges.next();
-    });
+    this.fm
+      .monitor(this._elementRef.nativeElement, true)
+      .subscribe((origin) => {
+        this.focused = !!origin;
+        this.stateChanges.next();
+      });
   }
 
   public onContainerClick(event: MouseEvent) {
@@ -255,7 +259,7 @@ export class FileInputComponent
             (existingFile) =>
               existingFile.name === newFile.name &&
               existingFile.size === newFile.size &&
-              existingFile.lastModified === newFile.lastModified
+              existingFile.lastModified === newFile.lastModified,
           );
         }
 
@@ -310,7 +314,7 @@ export class FileInputComponent
     this._renderer.setProperty(
       this._elementRef.nativeElement,
       'disabled',
-      isDisabled
+      isDisabled,
     );
   }
 
