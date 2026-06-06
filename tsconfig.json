@@ -2,7 +2,7 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "baseUrl": "./",
+    "rootDir": "./",
     "outDir": "./dist/out-tsc",
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
@@ -13,7 +13,7 @@
     "noImplicitReturns": true,
     "paths": {
       "material-file-input": [
-        "dist/material-file-input"
+        "./dist/material-file-input"
       ]
     },
     "noFallthroughCasesInSwitch": true,
