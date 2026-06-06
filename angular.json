@@ -31,6 +31,15 @@
             "tsConfig": "projects/material-file-input/tsconfig.spec.json",
             "karmaConfig": "projects/material-file-input/karma.conf.js"
           }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "projects/material-file-input/**/*.ts",
+              "projects/material-file-input/**/*.html"
+            ]
+          }
         }
       }
     },
@@ -126,6 +135,15 @@
               "projects/demo/src/styles.css"
             ],
             "scripts": []
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "projects/material-file-input/**/*.ts",
+              "projects/material-file-input/**/*.html"
+            ]
           }
         }
       }

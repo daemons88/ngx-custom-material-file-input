@@ -10,7 +10,8 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "install-local": "npm run build-library && npm run pack-lib && npm install dist/material-file-input/ngx-custom-material-file-input-22.0.0.tgz",
-    "publish": "npm run build-library && npm run pack-lib && npm publish dist/material-file-input/ngx-custom-material-file-input-22.0.0.tgz --access public"
+    "publish": "npm run build-library && npm run pack-lib && npm publish dist/material-file-input/ngx-custom-material-file-input-22.0.0.tgz --access public",
+    "lint": "ng lint"
   },
   "private": true,
   "dependencies": {
@@ -30,12 +31,14 @@
     "zone.js": "^0.16.2"
   },
   "devDependencies": {
-    "@angular-eslint/schematics": "18.0.1",
     "@angular/build": "^22.0.0",
     "@angular/cli": "~22.0.0",
     "@angular/compiler-cli": "^22.0.0",
+    "@eslint/js": "^10.0.1",
     "@types/body-parser": "^1.19.5",
     "@types/jasmine": "^6.0.0",
+    "angular-eslint": "21.4.0",
+    "eslint": "^10.3.0",
     "istanbul-lib-instrument": "^6.0.3",
     "jasmine-core": "^6.2.0",
     "karma": "^6.4.3",
@@ -44,7 +47,8 @@
     "karma-jasmine": "^5.1.0",
     "karma-jasmine-html-reporter": "^2.1.0",
     "ng-packagr": "^22.0.0",
-    "typescript": "~6.0.3"
+    "typescript": "~6.0.3",
+    "typescript-eslint": "8.59.2"
   },
   "engines": {
     "node": ">=20.11.1"
