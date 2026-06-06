@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -32,6 +32,7 @@ import { MatInputModule } from '@angular/material/input';
   ],
 })
 export class AppComponent {
+  private readonly formBuilder = inject(FormBuilder);
   private readonly validFileTypes = ['image/jpeg', 'image/png'];
   private readonly maxSizeBytes = 2097152; // 2 MB
   public readonly minFiles = 1;
@@ -40,7 +41,7 @@ export class AppComponent {
 
   title = 'demo';
 
-  constructor(private formBuilder: FormBuilder) {
+  constructor() {
     this.demoForm = this.formBuilder.group({
       basicfile: [
         '',
