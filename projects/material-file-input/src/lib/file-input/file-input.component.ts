@@ -10,6 +10,7 @@ import {
   Optional,
   Self,
   DoCheck,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import {
   ControlValueAccessor,
@@ -32,6 +33,7 @@ import { Subject } from 'rxjs/internal/Subject';
   providers: [
     { provide: MatFormFieldControl, useExisting: FileInputComponent },
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export class FileInputComponent
