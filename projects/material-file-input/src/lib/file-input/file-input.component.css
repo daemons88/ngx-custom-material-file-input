@@ -15,9 +15,11 @@ input {
   z-index: -1;
 }
 
-.filename {
-  display: inline-block;
+.file-input-value {
   text-overflow: ellipsis;
+  white-space: nowrap;
   overflow: hidden;
-  width: 100%;
+  display: inline-block;
+  max-width: 100%;
+  box-sizing: border-box;
 }
