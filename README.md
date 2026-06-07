@@ -16,7 +16,7 @@ This project is a copy of [ngx-material-file-input](https://github.com/merlosy/n
 
 From now on, the package version will be the same as the Angular version so I don't have to update the table all the time.
 
-- Latest version is using **Angular 21**
+- Latest version is using **Angular 22**
 
 From Angular 21 onwards, it is only supported as a **standalone component**.
 
